@@ -1,30 +1,19 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import Board from "./components/Board"
+import AppHeader from "./components/AppHeader"
 
 function App() {
-  const [count, setCount] = useState(0)
 
   return (
-    <>
-      <div className='flex justify-center'>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1 className='text-3l font-bold underline'>
-        Checkers AI Agent
-      </h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-      </div>
-    </>
+    <div className="min-h-screen bg-gradient-to-b from-amber-100 via-amber-200 to-amber-300 px-4 py-8">
+      <main className="mx-auto flex min-h-[calc(100vh-4rem)] w-full max-w-5xl flex-col items-center justify-center gap-6">
+        <AppHeader
+          title="Checkers AI Agent"
+          subtitle="Board interaction test view with hovered-cell feedback."
+        />
+
+        <Board />
+      </main>
+    </div>
   )
 }
 

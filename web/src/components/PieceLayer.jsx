@@ -1,11 +1,53 @@
-export default function PieceLayer({ pieces, geometry, textureCatalog }) {
+import { useEffect } from 'react'
+import RedPiece from './pieces/RedPiece'
+import BlackPiece from './pieces/BlackPiece'
+
+const pieceComponentByColor = {
+  red: RedPiece,
+  black: BlackPiece
+}
+
+const warnedColors = new Set()
+
+function warnUnsupportedColor(color) {
+  const normalizedColor = String(color ?? 'unknown')
+  if (warnedColors.has(normalizedColor)) return
+
+  warnedColors.add(normalizedColor)
+  console.warn(`[PieceLayer] Unsupported piece color '${normalizedColor}'. Rendering fallback piece.`)
+}
+
+function UnknownPiece({ piece }) {
+  const normalizedColor = String(piece.color ?? 'unknown')
+
+  useEffect(() => {
+    warnUnsupportedColor(normalizedColor)
+  }, [normalizedColor])
+
   return (
-    <div className='absolute inset-0 z-10'>
+    <>
+      <span
+        className='pointer-events-none h-[84%] w-[84%] rounded-full border-2 border-amber-100/75 bg-fuchsia-700/70 shadow-md'
+        title={`Unsupported piece color: ${normalizedColor}`}
+      />
+
+      {piece.king ? (
+        <span className='absolute text-base font-black text-amber-100 drop-shadow'>
+          K
+        </span>
+      ) : null}
+    </>
+  )
+}
+
+export default function PieceLayer({ pieces, geometry, playAreaStyle }) {
+  return (
+    <div className='absolute z-10' style={playAreaStyle}>
       {pieces.map((piece) => {
         const position = geometry.positionFor(piece.square)
         if (!position) return null
 
-        const texture = textureCatalog.variantFor(piece)
+        const PieceComponent = pieceComponentByColor[piece.color] ?? UnknownPiece
 
         return (
           <div
@@ -18,18 +60,7 @@ export default function PieceLayer({ pieces, geometry, textureCatalog }) {
               height: `${position.size}%`
             }}
           >
-            <img
-              src={texture.src}
-              alt={`${piece.color} checker`}
-              className={`h-[80%] w-[80%] object-contain drop-shadow-md ${texture.className}`}
-              draggable={false}
-            />
-
-            {piece.king ? (
-              <span className='absolute text-base font-black text-amber-100 drop-shadow'>
-                K
-              </span>
-            ) : null}
+            <PieceComponent piece={piece} />
           </div>
         )
       })}

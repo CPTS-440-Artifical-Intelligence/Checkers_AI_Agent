@@ -13,6 +13,7 @@ export default function BoardHoverLayer({
   hoveredCheckerType,
   checkerOverlaySizePercent,
   onHoverSquare,
+  onSelectSquare,
   playAreaStyle
 }) {
   return (
@@ -33,6 +34,7 @@ export default function BoardHoverLayer({
             data-square={cell.square}
             aria-label={`Square ${cell.square}`}
             onMouseEnter={() => onHoverSquare(cell.square)}
+            onClick={() => onSelectSquare(cell.square)}
             className={`relative grid h-full w-full cursor-pointer place-items-center border border-transparent transition ${
               shouldHighlightCell
                 ? 'bg-sky-300/35 ring-2 ring-inset ring-sky-800/70'

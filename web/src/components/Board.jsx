@@ -15,7 +15,8 @@ const playAreaStyle = {
 
 export default function Board() {
   const [hoveredSquare, setHoveredSquare] = useState(null)
-  const [gameState] = useState(() => createMockGameState())
+  const [selectedPieceId, setSelectedPieceId] = useState(null)
+  const [gameState, setGameState] = useState(() => createMockGameState())
 
   const pieceCountByColor = useMemo(() => {
     return gameState.pieces.reduce(
@@ -34,7 +35,42 @@ export default function Board() {
     }, {})
   }, [gameState.pieces])
 
+  const pieceBySquare = useMemo(() => {
+    return gameState.pieces.reduce((mapping, piece) => {
+      mapping[piece.square] = piece
+      return mapping
+    }, {})
+  }, [gameState.pieces])
+
+  const selectedPiece = useMemo(() => {
+    if (!selectedPieceId) return null
+    return gameState.pieces.find((piece) => piece.id === selectedPieceId) ?? null
+  }, [gameState.pieces, selectedPieceId])
+
+  const selectedSquare = selectedPiece?.square ?? null
   const hoveredCheckerType = hoveredSquare ? (pieceColorBySquare[hoveredSquare] ?? null) : null
+
+  const handleSelectSquare = (square) => {
+    const clickedPiece = pieceBySquare[square] ?? null
+
+    if (!selectedPieceId) {
+      if (clickedPiece) setSelectedPieceId(clickedPiece.id)
+      return
+    }
+
+    if (selectedSquare === square) {
+      setSelectedPieceId(null)
+      return
+    }
+
+    setGameState((currentState) => ({
+      ...currentState,
+      pieces: currentState.pieces.map((piece) =>
+        piece.id === selectedPieceId ? { ...piece, square } : piece
+      )
+    }))
+    setSelectedPieceId(null)
+  }
 
   return (
     <section className='flex w-full justify-center px-2'>
@@ -46,6 +82,7 @@ export default function Board() {
             pieces={gameState.pieces}
             geometry={boardGeometry}
             playAreaStyle={playAreaStyle}
+            selectedPieceId={selectedPieceId}
           />
 
           <BoardHoverLayer
@@ -54,12 +91,13 @@ export default function Board() {
             hoveredCheckerType={hoveredCheckerType}
             checkerOverlaySizePercent={CHECKER_SIZE_PERCENT}
             onHoverSquare={setHoveredSquare}
+            onSelectSquare={handleSelectSquare}
             playAreaStyle={playAreaStyle}
           />
         </div>
 
         <p className='font-mono text-sm text-amber-900/90'>
-          Hovered cell: {hoveredSquare ?? '--'} | Checker: {hoveredCheckerType ?? '--'} | Red: {pieceCountByColor.red} | Black: {pieceCountByColor.black}
+          Hovered cell: {hoveredSquare ?? '--'} | Checker: {hoveredCheckerType ?? '--'} | Selected: {selectedSquare ?? '--'} | Red: {pieceCountByColor.red} | Black: {pieceCountByColor.black}
         </p>
       </div>
     </section>

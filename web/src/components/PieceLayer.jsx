@@ -46,7 +46,9 @@ function UnknownPiece({ piece, checkerSizePercent }) {
   )
 }
 
-export default function PieceLayer({ pieces, geometry, playAreaStyle }) {
+export default function PieceLayer({ pieces, geometry, playAreaStyle, selectedPieceId }) {
+  const selectedOverlaySizePercent = CHECKER_SIZE_PERCENT
+
   return (
     <div className='absolute z-10' style={playAreaStyle}>
       {pieces.map((piece) => {
@@ -54,11 +56,14 @@ export default function PieceLayer({ pieces, geometry, playAreaStyle }) {
         if (!position) return null
 
         const PieceComponent = pieceComponentByColor[piece.color] ?? UnknownPiece
+        const isSelected = selectedPieceId === piece.id
 
         return (
           <div
             key={piece.id}
-            className='absolute grid place-items-center'
+            className={`absolute grid place-items-center transition-transform duration-100 ${
+              isSelected ? 'z-20 scale-105' : 'z-10'
+            }`}
             style={{
               left: `${position.left}%`,
               top: `${position.top}%`,
@@ -66,6 +71,18 @@ export default function PieceLayer({ pieces, geometry, playAreaStyle }) {
               height: `${position.size}%`
             }}
           >
+            {isSelected ? (
+              <span
+                aria-hidden='true'
+                className='pointer-events-none absolute rounded-full border-2 border-amber-100/95'
+                style={{
+                  width: `${selectedOverlaySizePercent}%`,
+                  height: `${selectedOverlaySizePercent}%`,
+                  boxShadow: '0 0 0 4px rgba(251, 191, 36, 0.7), 0 0 16px rgba(251, 191, 36, 0.45)'
+                }}
+              />
+            ) : null}
+
             <PieceComponent piece={piece} checkerSizePercent={CHECKER_SIZE_PERCENT} />
           </div>
         )

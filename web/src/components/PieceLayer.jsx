@@ -2,6 +2,8 @@ import { useEffect } from 'react'
 import RedPiece from './pieces/RedPiece'
 import BlackPiece from './pieces/BlackPiece'
 
+export const CHECKER_SIZE_PERCENT = 84
+
 const pieceComponentByColor = {
   red: RedPiece,
   black: BlackPiece
@@ -17,7 +19,7 @@ function warnUnsupportedColor(color) {
   console.warn(`[PieceLayer] Unsupported piece color '${normalizedColor}'. Rendering fallback piece.`)
 }
 
-function UnknownPiece({ piece }) {
+function UnknownPiece({ piece, checkerSizePercent }) {
   const normalizedColor = String(piece.color ?? 'unknown')
 
   useEffect(() => {
@@ -27,7 +29,11 @@ function UnknownPiece({ piece }) {
   return (
     <>
       <span
-        className='pointer-events-none h-[84%] w-[84%] rounded-full border-2 border-amber-100/75 bg-fuchsia-700/70 shadow-md'
+        className='pointer-events-none rounded-full border-2 border-amber-100/75 bg-fuchsia-700/70 shadow-md'
+        style={{
+          width: `${checkerSizePercent}%`,
+          height: `${checkerSizePercent}%`
+        }}
         title={`Unsupported piece color: ${normalizedColor}`}
       />
 
@@ -60,7 +66,7 @@ export default function PieceLayer({ pieces, geometry, playAreaStyle }) {
               height: `${position.size}%`
             }}
           >
-            <PieceComponent piece={piece} />
+            <PieceComponent piece={piece} checkerSizePercent={CHECKER_SIZE_PERCENT} />
           </div>
         )
       })}

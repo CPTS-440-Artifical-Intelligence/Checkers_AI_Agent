@@ -5,7 +5,7 @@ import { pickVariantIndex } from '../../models/PieceVariantSelector'
 
 const BLACK_VARIANTS = [Black1, Black2, Black3]
 
-export default function BlackPiece({ piece }) {
+export default function BlackPiece({ piece, checkerSizePercent }) {
   const index = pickVariantIndex(piece, BLACK_VARIANTS.length)
   const textureSrc = BLACK_VARIANTS[index]
 
@@ -14,7 +14,11 @@ export default function BlackPiece({ piece }) {
       <img
         src={textureSrc}
         alt='Black checker piece'
-        className='pointer-events-none h-[84%] w-[84%] select-none object-contain drop-shadow-md'
+        className='pointer-events-none select-none object-contain drop-shadow-md'
+        style={{
+          width: `${checkerSizePercent}%`,
+          height: `${checkerSizePercent}%`
+        }}
         draggable={false}
       />
 

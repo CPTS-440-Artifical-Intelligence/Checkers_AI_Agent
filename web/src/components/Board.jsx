@@ -3,7 +3,7 @@ import { BoardGeometry } from '../models/BoardGeometry'
 import { createMockGameState } from '../models/mockGameState'
 import BoardFrame from './BoardFrame'
 import BoardHoverLayer from './BoardHoverLayer'
-import PieceLayer from './PieceLayer'
+import PieceLayer, { CHECKER_SIZE_PERCENT } from './PieceLayer'
 
 const boardGeometry = new BoardGeometry(8)
 const playAreaStyle = {
@@ -27,6 +27,15 @@ export default function Board() {
     )
   }, [gameState.pieces])
 
+  const pieceColorBySquare = useMemo(() => {
+    return gameState.pieces.reduce((mapping, piece) => {
+      mapping[piece.square] = piece.color ?? 'unknown'
+      return mapping
+    }, {})
+  }, [gameState.pieces])
+
+  const hoveredCheckerType = hoveredSquare ? (pieceColorBySquare[hoveredSquare] ?? null) : null
+
   return (
     <section className='flex w-full justify-center px-2'>
       <div className='flex w-full max-w-[44rem] flex-col items-center gap-3'>
@@ -42,13 +51,15 @@ export default function Board() {
           <BoardHoverLayer
             geometry={boardGeometry}
             hoveredSquare={hoveredSquare}
+            hoveredCheckerType={hoveredCheckerType}
+            checkerOverlaySizePercent={CHECKER_SIZE_PERCENT}
             onHoverSquare={setHoveredSquare}
             playAreaStyle={playAreaStyle}
           />
         </div>
 
         <p className='font-mono text-sm text-amber-900/90'>
-          Hovered cell: {hoveredSquare ?? '--'} | Red: {pieceCountByColor.red} | Black: {pieceCountByColor.black}
+          Hovered cell: {hoveredSquare ?? '--'} | Checker: {hoveredCheckerType ?? '--'} | Red: {pieceCountByColor.red} | Black: {pieceCountByColor.black}
         </p>
       </div>
     </section>

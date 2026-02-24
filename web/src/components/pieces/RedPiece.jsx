@@ -5,7 +5,7 @@ import { pickVariantIndex } from '../../models/PieceVariantSelector'
 
 const RED_VARIANTS = [Red1, Red2, Red3]
 
-export default function RedPiece({ piece }) {
+export default function RedPiece({ piece, checkerSizePercent }) {
   const index = pickVariantIndex(piece, RED_VARIANTS.length)
   const textureSrc = RED_VARIANTS[index]
 
@@ -14,7 +14,11 @@ export default function RedPiece({ piece }) {
       <img
         src={textureSrc}
         alt='Red checker piece'
-        className='pointer-events-none h-[84%] w-[84%] select-none object-contain drop-shadow-md'
+        className='pointer-events-none select-none object-contain drop-shadow-md'
+        style={{
+          width: `${checkerSizePercent}%`,
+          height: `${checkerSizePercent}%`
+        }}
         draggable={false}
       />
 

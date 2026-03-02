@@ -219,15 +219,45 @@ Operations that mutate a game (`/move`, `/ai-move`, `/reset`) should be protecte
 
 ### Engine Requirements (What the API Expects)
 
-The engine is expected to implement these core functions (names may vary, behavior must match):
+The API now provides a thin adapter (`api/src/api/engine/module_adapter.py`) that loads an engine module and maps it into the `EnginePort` interface.
+
+Default engine mode:
+- `CHECKERS_API_ENGINE_MODE=default` (uses API fallback engine implementation)
+
+External engine mode:
+- `CHECKERS_API_ENGINE_MODE=external`
+- optional: `CHECKERS_ENGINE_MODULE=engine.api_contract` (defaults to this path)
+
+Auto mode:
+- `CHECKERS_API_ENGINE_MODE=auto` (tries external first, then falls back to default)
+
+Your teammates only need to implement the engine-side module at:
+- `engine/src/engine/api_contract.py`
+
+Expected engine call signatures:
 
 ```python
-new_game() -> state
+new_game(game_id: str) -> state
 get_legal_moves(state) -> list[path]
 apply_move(state, path) -> (new_state, move_result)
-is_terminal(state) -> (status, winner_or_none)
 choose_ai_move(state, config) -> (path, metrics)
 ```
+
+Expected `move_result` shape:
+
+```json
+{
+  "path": [[5,0],[4,1]],
+  "captures": [],
+  "promoted": false
+}
+```
+
+Expected `metrics` keys:
+- `depth_reached`
+- `nodes_expanded`
+- `prunes`
+- `time_ms`
 
 ## Implementation Architecture
 

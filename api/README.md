@@ -228,3 +228,28 @@ apply_move(state, path) -> (new_state, move_result)
 is_terminal(state) -> (status, winner_or_none)
 choose_ai_move(state, config) -> (path, metrics)
 ```
+
+## Implementation Architecture
+
+The API implementation follows a layered structure inside `api/src/api`:
+
+- `contracts/`: Pydantic request/response schemas (HTTP boundary only).
+- `routers/`: FastAPI route handlers that map HTTP calls to service use-cases.
+- `services/`: application orchestration and business rules for API workflows.
+- `repositories/`: persistence boundary (currently in-memory with per-game locks).
+- `engine/`: engine port + default adapter implementation.
+- `domain/`: internal dataclasses shared between service/repository/engine layers.
+
+This keeps the transport layer, orchestration, state storage, and game logic encapsulated and swappable.
+When the real `engine/` package is ready, you can replace `DefaultCheckersEngine` behind the same port without changing route handlers.
+
+## Local TDD Workflow (No Render Calls)
+
+Run all API contract tests locally:
+
+```bash
+cd api
+.venv\Scripts\python.exe -m unittest discover -s tests -v
+```
+
+These tests run directly against the FastAPI ASGI app in-process and verify endpoint behavior/JSON contracts without deploying or hitting Render rate limits.

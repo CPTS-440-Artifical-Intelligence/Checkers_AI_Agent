@@ -1,0 +1,36 @@
+# OS / Editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.python-version
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+
+# Virtual environments
+.venv/
+venv/
+env/
+api/.venv/
+
+# Packaging artifacts
+*.egg-info/
+*.egg
+build/
+dist/
+pip-wheel-metadata/
+api/src/checkers_api.egg-info/
+
+# Local environment files
+.env
+.env.*

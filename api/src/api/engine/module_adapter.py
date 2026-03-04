@@ -16,6 +16,9 @@ class EngineAdapterConfigurationError(RuntimeError):
     """Raised when an external engine module cannot satisfy the adapter contract."""
 
 
+# ---------------------------------------------------------------------------
+# Import and path helpers
+# ---------------------------------------------------------------------------
 def _ensure_repo_engine_path() -> None:
     """Allow importing `engine.*` from local monorepo without extra path setup."""
     repo_root = Path(__file__).resolve().parents[4]
@@ -26,6 +29,9 @@ def _ensure_repo_engine_path() -> None:
             sys.path.insert(0, engine_src)
 
 
+# ---------------------------------------------------------------------------
+# Mapping helpers (external module <-> domain types)
+# ---------------------------------------------------------------------------
 def _to_coord_pair(coord: Any) -> tuple[int, int]:
     if not isinstance(coord, (list, tuple)) or len(coord) != 2:
         raise ValueError("Coordinate values must be 2-item lists/tuples.")
@@ -99,6 +105,23 @@ def _to_metrics(raw_metrics: Any, depth_hint: int) -> AIMetrics:
     return AIMetrics(depth_reached=depth_hint, nodes_expanded=0, prunes=0, time_ms=0)
 
 
+def _path_to_payload(path: MovePath) -> list[list[int]]:
+    return [list(coord) for coord in path]
+
+
+def _agent_config_to_payload(config: AgentConfig) -> dict[str, object]:
+    return {
+        "type": config.type,
+        "max_depth": config.max_depth,
+        "time_limit_ms": config.time_limit_ms,
+        "seed": config.seed,
+    }
+
+
+def _default_move_data(path: MovePath) -> dict[str, object]:
+    return {"path": _path_to_payload(path), "captures": [], "promoted": False}
+
+
 class EngineModuleAdapter(EnginePort):
     """Thin adapter from API service calls to an external engine module."""
 
@@ -134,27 +157,19 @@ class EngineModuleAdapter(EnginePort):
         return _to_paths(result)
 
     def apply_move(self, state: GameStateData, path: MovePath) -> tuple[GameStateData, LastMoveData]:
-        raw_result = self._apply_move(state.as_dict(), [list(coord) for coord in path])
+        raw_result = self._apply_move(state.as_dict(), _path_to_payload(path))
         if isinstance(raw_result, tuple) and len(raw_result) == 2:
             raw_state, move_data = raw_result
         else:
             raw_state = raw_result
-            move_data = {"path": [list(coord) for coord in path], "captures": [], "promoted": False}
+            move_data = _default_move_data(path)
         mapped_state = _to_state(state.game_id, raw_state)
         mapped_last_move = _to_last_move(move_data, fallback_path=path)
         mapped_state.last_move = mapped_last_move
         return mapped_state, mapped_last_move
 
     def choose_ai_move(self, state: GameStateData, config: AgentConfig) -> tuple[MovePath, AIMetrics]:
-        raw_result = self._choose_ai_move(
-            state.as_dict(),
-            {
-                "type": config.type,
-                "max_depth": config.max_depth,
-                "time_limit_ms": config.time_limit_ms,
-                "seed": config.seed,
-            },
-        )
+        raw_result = self._choose_ai_move(state.as_dict(), _agent_config_to_payload(config))
         if not isinstance(raw_result, tuple) or len(raw_result) != 2:
             raise ValueError("choose_ai_move must return (path, metrics).")
         raw_path, raw_metrics = raw_result

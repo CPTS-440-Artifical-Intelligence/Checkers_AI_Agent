@@ -4,6 +4,7 @@ from typing import Literal
 
 from pydantic import BaseModel, Field, field_validator
 
+_BOARD_SIZE = 8
 _VALID_PIECES = {".", "r", "R", "b", "B"}
 
 
@@ -11,11 +12,29 @@ def _validate_coord(coord: list[int]) -> list[int]:
     if len(coord) != 2:
         raise ValueError("Each coordinate must have two integers.")
     row, col = coord
-    if not (0 <= row < 8 and 0 <= col < 8):
+    if not (0 <= row < _BOARD_SIZE and 0 <= col < _BOARD_SIZE):
         raise ValueError("Coordinates must be in the range [0, 7].")
     return coord
 
 
+def _validate_board_shape(board: list[list[str]]) -> None:
+    if len(board) != _BOARD_SIZE:
+        raise ValueError("Board must have 8 rows.")
+    for row in board:
+        if len(row) != _BOARD_SIZE:
+            raise ValueError("Each board row must have 8 columns.")
+
+
+def _validate_piece_codes(board: list[list[str]]) -> None:
+    for row in board:
+        for piece in row:
+            if piece not in _VALID_PIECES:
+                raise ValueError("Board contains an invalid piece code.")
+
+
+# ---------------------------------------------------------------------------
+# Request models
+# ---------------------------------------------------------------------------
 class MoveRequest(BaseModel):
     path: list[list[int]] = Field(min_length=2)
 
@@ -36,6 +55,9 @@ class AIMoveRequest(BaseModel):
     agent: AgentConfigRequest = Field(default_factory=AgentConfigRequest)
 
 
+# ---------------------------------------------------------------------------
+# Response models
+# ---------------------------------------------------------------------------
 class LastMoveResponse(BaseModel):
     path: list[list[int]]
     captures: list[list[int]]
@@ -54,14 +76,8 @@ class GameStateResponse(BaseModel):
     @field_validator("board")
     @classmethod
     def validate_board(cls, board: list[list[str]]) -> list[list[str]]:
-        if len(board) != 8:
-            raise ValueError("Board must have 8 rows.")
-        for row in board:
-            if len(row) != 8:
-                raise ValueError("Each board row must have 8 columns.")
-            for piece in row:
-                if piece not in _VALID_PIECES:
-                    raise ValueError("Board contains an invalid piece code.")
+        _validate_board_shape(board)
+        _validate_piece_codes(board)
         return board
 
 
@@ -91,4 +107,3 @@ class AIMoveDetailsResponse(BaseModel):
 class AIMoveEnvelopeResponse(BaseModel):
     state: GameStateResponse
     ai: AIMoveDetailsResponse
-

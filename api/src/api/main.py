@@ -5,14 +5,16 @@ from api.routers.games import router as games_router
 from api.routers.health import router as health_router
 
 
+def _build_api_router() -> APIRouter:
+    router = APIRouter(prefix="/api")
+    router.include_router(health_router, tags=["health"])
+    router.include_router(games_router, tags=["games"])
+    return router
+
+
 def create_app() -> FastAPI:
     app = FastAPI(title="Checkers API")
-    api_router = APIRouter(prefix="/api")
-
-    api_router.include_router(health_router, tags=["health"])
-    api_router.include_router(games_router, tags=["games"])
-
-    app.include_router(api_router)
+    app.include_router(_build_api_router())
     register_exception_handlers(app)
     return app
 

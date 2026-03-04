@@ -7,6 +7,13 @@ Coordinate: TypeAlias = tuple[int, int]
 Path: TypeAlias = list[Coordinate]
 
 
+def _coords_to_lists(coords: list[Coordinate]) -> list[list[int]]:
+    return [list(coord) for coord in coords]
+
+
+# ---------------------------------------------------------------------------
+# Configuration and telemetry
+# ---------------------------------------------------------------------------
 @dataclass(slots=True)
 class AgentConfig:
     type: str = "alphabeta"
@@ -31,6 +38,9 @@ class AIMetrics:
         }
 
 
+# ---------------------------------------------------------------------------
+# Game state models
+# ---------------------------------------------------------------------------
 @dataclass(slots=True)
 class LastMoveData:
     path: Path
@@ -39,8 +49,8 @@ class LastMoveData:
 
     def as_dict(self) -> dict[str, object]:
         return {
-            "path": [list(coord) for coord in self.path],
-            "captures": [list(coord) for coord in self.captures],
+            "path": _coords_to_lists(self.path),
+            "captures": _coords_to_lists(self.captures),
             "promoted": self.promoted,
         }
 
@@ -65,4 +75,3 @@ class GameStateData:
             "must_capture": self.must_capture,
             "last_move": self.last_move.as_dict() if self.last_move else None,
         }
-

@@ -5,11 +5,15 @@ import random
 
 from api.domain.models import AIMetrics, AgentConfig, Coordinate, GameStateData, LastMoveData, Path
 
+_BOARD_SIZE = 8
 _EMPTY = "."
 _RED_PIECES = {"r", "R"}
 _BLACK_PIECES = {"b", "B"}
 
 
+# ---------------------------------------------------------------------------
+# Primitive helpers
+# ---------------------------------------------------------------------------
 def _opponent(player: str) -> str:
     return "black" if player == "red" else "red"
 
@@ -23,7 +27,7 @@ def _owner(piece: str) -> str | None:
 
 
 def _in_bounds(row: int, col: int) -> bool:
-    return 0 <= row < 8 and 0 <= col < 8
+    return 0 <= row < _BOARD_SIZE and 0 <= col < _BOARD_SIZE
 
 
 def _is_capture_path(path: Path) -> bool:
@@ -49,20 +53,52 @@ def _promote(piece: str, row: int) -> tuple[str, bool]:
     return piece, False
 
 
+def _is_dark_square(row: int, col: int) -> bool:
+    return (row + col) % 2 == 1
+
+
+def _empty_board() -> list[list[str]]:
+    return [[_EMPTY for _ in range(_BOARD_SIZE)] for _ in range(_BOARD_SIZE)]
+
+
+def _build_initial_board() -> list[list[str]]:
+    board = _empty_board()
+    for row in range(3):
+        for col in range(_BOARD_SIZE):
+            if _is_dark_square(row, col):
+                board[row][col] = "b"
+    for row in range(5, _BOARD_SIZE):
+        for col in range(_BOARD_SIZE):
+            if _is_dark_square(row, col):
+                board[row][col] = "r"
+    return board
+
+
+def _pieces_for_turn(board: list[list[str]], turn: str) -> list[tuple[Coordinate, str]]:
+    pieces: list[tuple[Coordinate, str]] = []
+    for row in range(_BOARD_SIZE):
+        for col in range(_BOARD_SIZE):
+            piece = board[row][col]
+            if _owner(piece) == turn:
+                pieces.append(((row, col), piece))
+    return pieces
+
+
+def _move_lookup(legal_moves: list[Path]) -> set[tuple[Coordinate, ...]]:
+    return {tuple(move) for move in legal_moves}
+
+
+def _piece_count(board: list[list[str]], pieces: set[str]) -> int:
+    return sum(piece in pieces for row in board for piece in row)
+
+
 class DefaultCheckersEngine:
+    """Reference in-API engine used as default and testing fallback."""
+
     def new_game_state(self, game_id: str) -> GameStateData:
-        board = [[_EMPTY for _ in range(8)] for _ in range(8)]
-        for row in range(3):
-            for col in range(8):
-                if (row + col) % 2 == 1:
-                    board[row][col] = "b"
-        for row in range(5, 8):
-            for col in range(8):
-                if (row + col) % 2 == 1:
-                    board[row][col] = "r"
         return GameStateData(
             game_id=game_id,
-            board=board,
+            board=_build_initial_board(),
             turn="red",
             status="in_progress",
             winner=None,
@@ -76,15 +112,9 @@ class DefaultCheckersEngine:
 
         capture_moves: list[Path] = []
         simple_moves: list[Path] = []
-        for row in range(8):
-            for col in range(8):
-                piece = state.board[row][col]
-                if _owner(piece) != state.turn:
-                    continue
-                start = (row, col)
-                piece_captures = self._capture_paths(state.board, start, piece)
-                capture_moves.extend(piece_captures)
-                simple_moves.extend(self._simple_paths(state.board, start, piece))
+        for start, piece in _pieces_for_turn(state.board, state.turn):
+            capture_moves.extend(self._capture_paths(state.board, start, piece))
+            simple_moves.extend(self._simple_paths(state.board, start, piece))
 
         return capture_moves if capture_moves else simple_moves
 
@@ -125,8 +155,7 @@ class DefaultCheckersEngine:
         return chosen, metrics
 
     def _contains_move(self, legal_moves: list[Path], candidate: Path) -> bool:
-        legal = {tuple(move) for move in legal_moves}
-        return tuple(candidate) in legal
+        return tuple(candidate) in _move_lookup(legal_moves)
 
     def _simple_paths(self, board: list[list[str]], start: Coordinate, piece: str) -> list[Path]:
         row, col = start
@@ -215,8 +244,8 @@ class DefaultCheckersEngine:
         return captures, promoted
 
     def _update_terminal_state(self, state: GameStateData) -> None:
-        red_count = sum(piece in _RED_PIECES for row in state.board for piece in row)
-        black_count = sum(piece in _BLACK_PIECES for row in state.board for piece in row)
+        red_count = _piece_count(state.board, _RED_PIECES)
+        black_count = _piece_count(state.board, _BLACK_PIECES)
         if red_count == 0:
             state.status = "finished"
             state.winner = "black"
@@ -238,4 +267,3 @@ class DefaultCheckersEngine:
         state.status = "in_progress"
         state.winner = None
         state.must_capture = any(_is_capture_path(path) for path in legal_moves)
-

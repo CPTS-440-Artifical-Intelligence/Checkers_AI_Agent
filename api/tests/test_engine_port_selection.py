@@ -10,8 +10,11 @@ SRC = ROOT / "src"
 if str(SRC) not in sys.path:
     sys.path.insert(0, str(SRC))
 
-from api.engine.default_engine import DefaultCheckersEngine  # noqa: E402
-from api.engine.module_adapter import build_engine_port  # noqa: E402
+from api.engine.module_adapter import (  # noqa: E402
+    EngineAdapterConfigurationError,
+    EngineModuleAdapter,
+    build_engine_port,
+)
 
 
 class EnginePortSelectionTests(unittest.TestCase):
@@ -30,16 +33,22 @@ class EnginePortSelectionTests(unittest.TestCase):
         else:
             os.environ["CHECKERS_ENGINE_MODULE"] = self._old_module
 
-    def test_default_mode_uses_fallback_engine(self) -> None:
-        os.environ["CHECKERS_API_ENGINE_MODE"] = "default"
+    def test_external_mode_returns_module_adapter(self) -> None:
+        os.environ["CHECKERS_API_ENGINE_MODE"] = "external"
+        os.environ["CHECKERS_ENGINE_MODULE"] = "engine.api_contract"
         engine = build_engine_port()
-        self.assertIsInstance(engine, DefaultCheckersEngine)
+        self.assertIsInstance(engine, EngineModuleAdapter)
 
-    def test_auto_mode_falls_back_when_external_module_missing(self) -> None:
-        os.environ["CHECKERS_API_ENGINE_MODE"] = "auto"
+    def test_external_mode_raises_when_module_missing(self) -> None:
+        os.environ["CHECKERS_API_ENGINE_MODE"] = "external"
         os.environ["CHECKERS_ENGINE_MODULE"] = "engine.module_that_does_not_exist"
-        engine = build_engine_port()
-        self.assertIsInstance(engine, DefaultCheckersEngine)
+        with self.assertRaises(ModuleNotFoundError):
+            build_engine_port()
+
+    def test_invalid_mode_is_rejected(self) -> None:
+        os.environ["CHECKERS_API_ENGINE_MODE"] = "default"
+        with self.assertRaises(EngineAdapterConfigurationError):
+            build_engine_port()
 
 
 if __name__ == "__main__":

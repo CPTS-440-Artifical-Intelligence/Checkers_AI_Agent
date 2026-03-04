@@ -186,29 +186,18 @@ class EngineModuleAdapter(EnginePort):
 
 def build_engine_port() -> EnginePort:
     """
-    Select the active engine implementation.
+    Build the engine port from the external engine module only.
 
-    - CHECKERS_API_ENGINE_MODE=default  -> use API-owned fallback engine (default)
-    - CHECKERS_API_ENGINE_MODE=external -> use engine module adapter
-    - CHECKERS_API_ENGINE_MODE=auto     -> try external, then fallback to default
+    Required:
+    - CHECKERS_API_ENGINE_MODE=external (or unset)
+    - CHECKERS_ENGINE_MODULE=engine.api_contract (default)
     """
-    from api.engine.default_engine import DefaultCheckersEngine
-
-    mode = os.getenv("CHECKERS_API_ENGINE_MODE", "default").strip().lower()
+    mode = os.getenv("CHECKERS_API_ENGINE_MODE", "external").strip().lower()
     module_path = os.getenv("CHECKERS_ENGINE_MODULE", "engine.api_contract")
 
-    if mode == "default":
-        return DefaultCheckersEngine()
+    if mode not in {"", "external"}:
+        raise EngineAdapterConfigurationError(
+            "Invalid CHECKERS_API_ENGINE_MODE. Expected: external."
+        )
 
-    if mode == "external":
-        return EngineModuleAdapter.from_module_path(module_path)
-
-    if mode == "auto":
-        try:
-            return EngineModuleAdapter.from_module_path(module_path)
-        except Exception:
-            return DefaultCheckersEngine()
-
-    raise EngineAdapterConfigurationError(
-        "Invalid CHECKERS_API_ENGINE_MODE. Expected one of: default, external, auto."
-    )
+    return EngineModuleAdapter.from_module_path(module_path)

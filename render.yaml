@@ -3,11 +3,13 @@ services:
     name: checkers-api
     runtime: python
     rootDir: api
-    buildCommand: pip install -e .
+    buildCommand: pip install -e ../engine && pip install -e .
     startCommand: uvicorn api.main:app --host 0.0.0.0 --port $PORT
     envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.11
       - key: CHECKERS_API_ENGINE_MODE
-        value: default
+        value: external
       - key: CHECKERS_API_STATE_BACKEND
         value: redis
       - key: CHECKERS_REDIS_GAME_TTL_S

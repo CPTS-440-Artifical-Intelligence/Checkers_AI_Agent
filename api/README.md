@@ -255,15 +255,13 @@ If Netlify proxies `/api/*` to Render, CORS is not required for normal frontend 
 
 The API now provides a thin adapter (`api/src/api/engine/module_adapter.py`) that loads an engine module and maps it into the `EnginePort` interface.
 
-Default engine mode:
-- `CHECKERS_API_ENGINE_MODE=default` (uses API fallback engine implementation)
-
-External engine mode:
+Engine mode:
 - `CHECKERS_API_ENGINE_MODE=external`
-- optional: `CHECKERS_ENGINE_MODULE=engine.api_contract` (defaults to this path)
+- optional `CHECKERS_ENGINE_MODULE=engine.api_contract` (defaults to this path)
 
-Auto mode:
-- `CHECKERS_API_ENGINE_MODE=auto` (tries external first, then falls back to default)
+Deployment note:
+- Install the monorepo engine package during Render build (`pip install -e ../engine`).
+- If engine import fails, deployment should fail fast (no in-API fallback engine).
 
 Your teammates only need to implement the engine-side module at:
 - `engine/src/engine/api_contract.py`
@@ -301,11 +299,11 @@ The API implementation follows a layered structure inside `api/src/api`:
 - `routers/`: FastAPI route handlers that map HTTP calls to service use-cases.
 - `services/`: application orchestration and business rules for API workflows.
 - `repositories/`: persistence boundary (in-memory or Redis-backed with per-game locks).
-- `engine/`: engine port + default adapter implementation.
+- `engine/`: engine port + external engine module adapter.
 - `domain/`: internal dataclasses shared between service/repository/engine layers.
 
 This keeps the transport layer, orchestration, state storage, and game logic encapsulated and swappable.
-When the real `engine/` package is ready, you can replace `DefaultCheckersEngine` behind the same port without changing route handlers.
+The API does not contain a fallback gameplay engine; game behavior comes from `engine/`.
 
 ## Local TDD Workflow (No Render Calls)
 

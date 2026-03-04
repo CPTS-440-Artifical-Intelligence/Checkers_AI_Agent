@@ -7,22 +7,50 @@ This folder is owned by the engine team and should contain pure game logic:
 - move application (including captures and promotions)
 - AI move selection (minimax/alpha-beta/A* experiments)
 
-The API layer already has a thin adapter that expects this module:
+The API layer already has a thin adapter that imports this module:
 
 - `engine/src/engine/api_contract.py`
 
-## Required Functions
+## Current Setup
 
-Implement these functions in `engine/src/engine/api_contract.py`:
+`api_contract.py` is now wired and API-ready. It delegates into:
 
-```python
-def new_game(game_id: str) -> dict: ...
-def get_legal_moves(state: dict) -> list[list[list[int]]]: ...
-def apply_move(state: dict, path: list[list[int]]) -> tuple[dict, dict]: ...
-def choose_ai_move(state: dict, config: dict) -> tuple[list[list[int]], dict]: ...
+- `engine/src/engine/runtime.py`: stable runtime entrypoints used by API
+- `engine/src/engine/baseline.py`: working fallback implementation
+- `engine/src/engine/roles/*`: teammate role stubs that can replace fallback logic incrementally
+
+This means the API can run immediately in `external` mode while each role is implemented.
+
+## Role Directories
+
+Role ownership is documented in:
+
+- `engine/TEAM_ROLES.md`
+
+Implemented stubs:
+
+- `engine/src/engine/roles/board_state/provider.py`
+- `engine/src/engine/roles/move_generation/provider.py`
+- `engine/src/engine/roles/search/provider.py`
+
+### Template Wiring Mode
+
+For frontend/backend smoke tests, you can enable imported templates:
+
+```bash
+set CHECKERS_API_ENGINE_MODE=external
+set CHECKERS_ENGINE_MODULE=engine.api_contract
+set CHECKERS_ENGINE_TEMPLATE_MODE=1
 ```
 
-## Data Contract
+When enabled:
+- `new_game` starts from `engine/src/engine/roles/board_state/templates.py`
+- `get_legal_moves` returns "move any active-side piece to any square" paths
+- `apply_move` relocates the selected piece and returns a standard move_result payload
+
+This mode exists to validate full wiring quickly and is intended to be replaced role-by-role.
+
+## API Contract
 
 ### State shape
 
@@ -104,12 +132,4 @@ Then start API normally:
 cd api
 start-local-api.bat
 ```
-
-## Suggested Scope Split
-
-1. Core state and data structures.
-2. Legal move generator.
-3. Move application and terminal-state detection.
-4. AI policy (`choose_ai_move`) with metrics.
-5. Team-level unit tests inside `engine/` for faster iteration.
 

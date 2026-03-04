@@ -2,6 +2,11 @@ from __future__ import annotations
 
 from typing import Any
 
+from engine.runtime import apply_move as _apply_move
+from engine.runtime import choose_ai_move as _choose_ai_move
+from engine.runtime import get_legal_moves as _get_legal_moves
+from engine.runtime import new_game as _new_game
+
 
 def new_game(game_id: str) -> dict[str, Any]:
     """
@@ -22,7 +27,7 @@ def new_game(game_id: str) -> dict[str, Any]:
       }
     }
     """
-    raise NotImplementedError("Teammates: implement new_game in engine/api_contract.py")
+    return _new_game(game_id)
 
 
 def get_legal_moves(state: dict[str, Any]) -> list[list[list[int]]]:
@@ -35,7 +40,7 @@ def get_legal_moves(state: dict[str, Any]) -> list[list[list[int]]]:
       [[r0, c0], [r1, c1], [r2, c2]]
     ]
     """
-    raise NotImplementedError("Teammates: implement get_legal_moves in engine/api_contract.py")
+    return _get_legal_moves(state)
 
 
 def apply_move(
@@ -52,7 +57,7 @@ def apply_move(
       "promoted": bool
     }
     """
-    raise NotImplementedError("Teammates: implement apply_move in engine/api_contract.py")
+    return _apply_move(state, path)
 
 
 def choose_ai_move(
@@ -74,5 +79,5 @@ def choose_ai_move(
     - prunes
     - time_ms
     """
-    raise NotImplementedError("Teammates: implement choose_ai_move in engine/api_contract.py")
+    return _choose_ai_move(state, config)
 

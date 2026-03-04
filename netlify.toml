@@ -1,0 +1,17 @@
+[build]
+  base = "web"
+  command = "npm ci && npm run build"
+  publish = "dist"
+
+# Netlify redirect rules do not support env var interpolation in this target URL.
+# Replace the hostname below with your Render API URL.
+[[redirects]]
+  from = "/api/*"
+  to = "https://checkers-ai-agent.onrender.com/api/:splat"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

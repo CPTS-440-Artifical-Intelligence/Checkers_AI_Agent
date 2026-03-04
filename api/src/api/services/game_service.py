@@ -5,7 +5,7 @@ import uuid
 from api.domain.models import AIMetrics, AgentConfig, GameStateData, Path
 from api.engine.port import EnginePort
 from api.errors import ApiError
-from api.repositories.game_repository import InMemoryGameRepository
+from api.repositories.game_repository import GameRepository
 
 
 def _normalize_path(path: list[list[int]]) -> Path:
@@ -15,12 +15,12 @@ def _normalize_path(path: list[list[int]]) -> Path:
 class GameService:
     """Application use-cases for game lifecycle and move execution."""
 
-    def __init__(self, repository: InMemoryGameRepository, engine: EnginePort) -> None:
+    def __init__(self, repository: GameRepository, engine: EnginePort) -> None:
         self._repository = repository
         self._engine = engine
 
     def create_game(self) -> GameStateData:
-        game_id = uuid.uuid4().hex[:8]
+        game_id = uuid.uuid4().hex
         state = self._engine.new_game_state(game_id)
         self._repository.create(state)
         return state

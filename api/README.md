@@ -18,6 +18,8 @@ All routes are prefixed with:
 In development, the React app should call relative paths like `fetch("/api/health")` and rely on a dev proxy.
 In production, `/api/*` should be proxied to the FastAPI host (so the frontend can still call `/api/...`).
 
+If you skip proxying and call the Render API URL directly from the browser, set `CHECKERS_CORS_ORIGINS` on the API.
+
 ### Board Coordinates
 
 All board coordinates are:
@@ -217,6 +219,38 @@ The API must prevent double-moves caused by fast repeated clicks.
 
 Operations that mutate a game (`/move`, `/ai-move`, `/reset`) should be protected by a per-game lock.
 
+### State Backend (Single Instance vs Multi-Instance)
+
+Game state storage is configurable:
+
+- `CHECKERS_API_STATE_BACKEND=memory` (default)
+- `CHECKERS_API_STATE_BACKEND=redis` (recommended for multi-instance deployment)
+
+Redis mode requires:
+
+- `CHECKERS_REDIS_URL` (example: `redis://localhost:6379/0`)
+
+Optional Redis tuning:
+
+- `CHECKERS_REDIS_GAME_PREFIX` (default: `checkers:game`)
+- `CHECKERS_REDIS_LOCK_PREFIX` (default: `checkers:lock`)
+- `CHECKERS_REDIS_GAME_TTL_S` (default: unset/no expiry)
+- `CHECKERS_REDIS_LOCK_TIMEOUT_S` (default: `10`)
+- `CHECKERS_REDIS_LOCK_BLOCKING_TIMEOUT_S` (default: `5`)
+
+Use `memory` for local dev and simple single-instance runs.
+Use `redis` on Render if you want multiple API instances to share games safely.
+
+### CORS Configuration (Optional)
+
+CORS is disabled by default.
+
+Enable it only when the browser calls the API by full Render origin URL:
+
+- `CHECKERS_CORS_ORIGINS=https://your-site.netlify.app,http://localhost:5173`
+
+If Netlify proxies `/api/*` to Render, CORS is not required for normal frontend requests.
+
 ### Engine Requirements (What the API Expects)
 
 The API now provides a thin adapter (`api/src/api/engine/module_adapter.py`) that loads an engine module and maps it into the `EnginePort` interface.
@@ -266,7 +300,7 @@ The API implementation follows a layered structure inside `api/src/api`:
 - `contracts/`: Pydantic request/response schemas (HTTP boundary only).
 - `routers/`: FastAPI route handlers that map HTTP calls to service use-cases.
 - `services/`: application orchestration and business rules for API workflows.
-- `repositories/`: persistence boundary (currently in-memory with per-game locks).
+- `repositories/`: persistence boundary (in-memory or Redis-backed with per-game locks).
 - `engine/`: engine port + default adapter implementation.
 - `domain/`: internal dataclasses shared between service/repository/engine layers.
 

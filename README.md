@@ -18,6 +18,10 @@ This opens two terminal windows:
 - API: runs `api\start-local-api.bat` (default `http://127.0.0.1:8000`)
 - Web: runs `npm.cmd run dev` in `web\` (default `http://localhost:5173`)
 
+Note:
+- Local API state backend defaults to in-memory.
+- For multi-instance deployment, configure API to use Redis (`CHECKERS_API_STATE_BACKEND=redis` + `CHECKERS_REDIS_URL`).
+
 Optional API port:
 
 ```bat
@@ -36,6 +40,39 @@ npm-run-dev.bat
 ```
 
 This script opens `http://localhost:5173/` in Chrome, then runs `npm run dev`.
+
+## Deployment
+
+### Frontend (Netlify)
+
+`netlify.toml` is now in repo root for monorepo deploys:
+- base directory: `web`
+- build command: `npm ci && npm run build`
+- publish directory: `dist`
+
+Important:
+- Update the proxy target host in `netlify.toml` from `REPLACE_WITH_YOUR_RENDER_API_HOST` to your real Render API host.
+- With that `/api/*` proxy in place, the browser calls Netlify origin, so CORS is not required for normal frontend traffic.
+
+### Backend (Render)
+
+`render.yaml` is now in repo root and defines the API service:
+- root directory: `api`
+- build: `pip install -e .`
+- start: `uvicorn api.main:app --host 0.0.0.0 --port $PORT`
+
+For multi-instance support, keep:
+- `CHECKERS_API_STATE_BACKEND=redis`
+- `CHECKERS_REDIS_URL=<your redis connection url>`
+- optional `CHECKERS_REDIS_GAME_TTL_S=86400`
+
+### CORS (Only If Needed)
+
+CORS is optional and disabled by default.
+
+Set `CHECKERS_CORS_ORIGINS` only if your frontend talks directly to Render API origin (without Netlify proxy), for example:
+
+`CHECKERS_CORS_ORIGINS=https://your-site.netlify.app,http://localhost:5173`
 
 
 ## Contributing

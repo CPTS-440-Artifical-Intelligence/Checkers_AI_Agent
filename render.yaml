@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: checkers-api
+    runtime: python
+    rootDir: api
+    buildCommand: pip install -e .
+    startCommand: uvicorn api.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: CHECKERS_API_ENGINE_MODE
+        value: default
+      - key: CHECKERS_API_STATE_BACKEND
+        value: redis
+      - key: CHECKERS_REDIS_GAME_TTL_S
+        value: 86400
+      - key: CHECKERS_REDIS_URL
+        sync: false
+      - key: CHECKERS_CORS_ORIGINS
+        sync: false

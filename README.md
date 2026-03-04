@@ -6,6 +6,37 @@ CPTS_440 Artifical Intelligence Group Project
 
 See the API contract in [`api/README.md`](api/README.md#api-contract).
 
+## Run Both Servers (One Click)
+
+From the repo root:
+
+```bat
+start-local-dev.bat
+```
+
+This opens two terminal windows:
+- API: runs `api\start-local-api.bat` (default `http://127.0.0.1:8000`)
+- Web: runs `npm.cmd run dev` in `web\` (default `http://localhost:5173`)
+
+Optional API port:
+
+```bat
+start-local-dev.bat 8000
+```
+
+Order of args:
+1. API port
+
+## Run Frontend Only
+
+From `web\`:
+
+```bat
+npm-run-dev.bat
+```
+
+This script opens `http://localhost:5173/` in Chrome, then runs `npm run dev`.
+
 
 ## Contributing
 

@@ -6,6 +6,7 @@ import { createMockGameState } from '../models/mockGameState'
 import BoardFrame from './BoardFrame'
 import BoardHoverLayer from './BoardHoverLayer'
 import PieceLayer, { CHECKER_SIZE_PERCENT } from './PieceLayer'
+import TurnGlowLayer from './TurnGlowLayer'
 
 const boardGeometry = new BoardGeometry(8)
 const playAreaStyle = {
@@ -25,6 +26,15 @@ function toMovePath(fromSquare, toSquare) {
   const to = squareToCoord(toSquare)
   if (!from || !to) return null
   return [from, to]
+}
+
+function normalizeTeamColor(value) {
+  if (value === 'red' || value === 'black') return value
+  return null
+}
+
+function turnSelectionError(turn) {
+  return `It's ${turn}'s turn. Select a ${turn} piece.`
 }
 
 export default function Board() {
@@ -98,21 +108,36 @@ export default function Board() {
 
   const selectedSquare = selectedPiece?.square ?? null
   const hoveredCheckerType = hoveredSquare ? (pieceColorBySquare[hoveredSquare] ?? null) : null
+  const statusMessage = errorMessage ?? (isSyncing ? 'Syncing with API...' : null)
+  const statusTextClass = errorMessage ? 'text-red-800' : 'text-amber-900/80'
 
   const handleSelectSquare = async (square) => {
     if (isSyncing) return
 
     const clickedPiece = pieceBySquare[square] ?? null
+    const activeTurn = normalizeTeamColor(gameState.turn)
 
     if (!selectedPieceId) {
       if (clickedPiece) {
+        if (activeTurn && clickedPiece.color !== activeTurn) {
+          setErrorMessage(turnSelectionError(activeTurn))
+          return
+        }
+
         setSelectedPieceId(clickedPiece.id)
+        setErrorMessage(null)
       }
       return
     }
 
     if (selectedSquare === square) {
       setSelectedPieceId(null)
+      return
+    }
+
+    if (activeTurn && selectedPiece && selectedPiece.color !== activeTurn) {
+      setSelectedPieceId(null)
+      setErrorMessage(turnSelectionError(activeTurn))
       return
     }
 
@@ -150,6 +175,13 @@ export default function Board() {
         <div className='relative aspect-square w-[min(90vw,calc(100vh-16rem))] max-w-[44rem]'>
           <BoardFrame geometry={boardGeometry} playAreaStyle={playAreaStyle} />
 
+          <TurnGlowLayer
+            pieces={gameState.pieces}
+            geometry={boardGeometry}
+            playAreaStyle={playAreaStyle}
+            activeTurn={gameState.turn}
+          />
+
           <PieceLayer
             pieces={gameState.pieces}
             geometry={boardGeometry}
@@ -172,8 +204,15 @@ export default function Board() {
           Hovered cell: {hoveredSquare ?? '--'} | Checker: {hoveredCheckerType ?? '--'} | Selected: {selectedSquare ?? '--'} | Red: {pieceCountByColor.red} | Black: {pieceCountByColor.black}
         </p>
 
-        {isSyncing ? <p className='font-mono text-xs text-amber-900/80'>Syncing with API...</p> : null}
-        {errorMessage ? <p className='font-mono text-xs text-red-800'>{errorMessage}</p> : null}
+        <div className='min-h-[1.25rem]'>
+          <p
+            className={`font-mono text-xs transition-opacity ${statusTextClass} ${statusMessage ? 'opacity-100' : 'opacity-0'}`}
+            aria-live='polite'
+            role='status'
+          >
+            {statusMessage ?? '\u00A0'}
+          </p>
+        </div>
       </div>
     </section>
   )

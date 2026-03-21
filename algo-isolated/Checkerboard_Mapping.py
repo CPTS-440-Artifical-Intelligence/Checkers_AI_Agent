@@ -36,7 +36,7 @@ class MappedCheckerBoard:
     def generateCheckerBoardFromMapping(mapped_checker_board: MappedCheckerBoard) -> any:
         return null;
 
-    # this is where I will generate each state from data structure after converting into it and then use signrature to remove similar states and return state that are only different from each other by the signature (unique but also not)
+    # Generate each state from data structure acting as a particular side after converting mapped into original state, then then convert orginal states generated into mapped and use signature to remove similar states and return those somewhat unique states
     @staticmethod
     def generateAllPossibleNextMappedBoardStates(mapped_checker_board: MappedCheckerBoard, is_red_turn: bool) -> list[MappedCheckerBoard]:
         return null;

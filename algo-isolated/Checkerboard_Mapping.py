@@ -1,16 +1,16 @@
-import math
-
 #
 # Checkers Mapped Board State Representation
 #
-# - Black Starts at Top of Board, Red Starts at Bottom of Board
+# - Black Starts at Top of Board (MSB or far left of binary), Red Starts at Bottom of Board (LSB or far right of binary)
 # - Uses binary encoding of the dark squares ONLY and a choice of using the Red or Black peices
 # - Example of a 18 bit board state for one side pieces of the board
 #   - checker piece on 7th dark square would be 0b_00_0000_0000_0100_0000
 #   - checker pieces on 3rd, 7th, 11th dark square would be 0b_00_0000_0100_0100_0100
 # - All mapping will then also be the same for identifying king and mans by looking at those position and flipping a bit to 1 if its a king.
 #
-#
+# d = length of binary encoding
+# p = PLAYER_CHECKER_COUNT
+# 
 # Note: Can only deal with a 6 x 6 Checker Board however if modified correctly could theoretically do any possible size checker board. (however for this course im not going to worry about that)
 #
 class MappedCheckerBoard:
@@ -18,25 +18,41 @@ class MappedCheckerBoard:
     TOTAL_CHECKER_BOARD_SQUARES = CHECKER_BOARD_SIZE * CHECKER_BOARD_SIZE;
     TOTAL_CHECKER_BOARD_DARK_SQUARES = TOTAL_CHECKER_BOARD_SQUARES // 2;
     CHECKER_BOARD_DARK_SQUARES_PER_RANK = CHECKER_BOARD_SIZE // 2;
+    TOTAL_CHECKERS_COUNT = CHECKER_BOARD_DARK_SQUARES_PER_RANK * (CHECKER_BOARD_SIZE - 2);
+    PLAYER_CHECKER_COUNT = TOTAL_CHECKERS_COUNT // 2
+    STARTING_MAN_DISTANCE_TO_KING = sum(
+        (size - i) * dark_squares_per_rank
+        for size, dark_squares_per_rank, limit in [(CHECKER_BOARD_SIZE, CHECKER_BOARD_DARK_SQUARES_PER_RANK, (PLAYER_CHECKER_COUNT // CHECKER_BOARD_DARK_SQUARES_PER_RANK))]
+        for i in range(1, limit + 1)
+    )
     
     # Creates the mapped state of the checker board from the board state
     @staticmethod
-    def generateMappingFromCheckerBoard(self, checker_board: any) -> MappedCheckerBoard:
+    def generateMappingFromCheckerBoard(checker_board: any) -> MappedCheckerBoard:
         return null;
     
     # Creates the board state from the mapped state of the checker board
     @staticmethod
-    def generateCheckerBoardFromMapping(self, mapped_checker_board: MappedCheckerBoard) -> any:
+    def generateCheckerBoardFromMapping(mapped_checker_board: MappedCheckerBoard) -> any:
+        return null;
+
+    # this is where I will generate each state from data structure after converting into it and then use signrature to remove similar states and return state that are only different from each other by the signature (unique but also not)
+    @staticmethod
+    def generateAllPossibleNextMappedBoardStates(mapped_checker_board: MappedCheckerBoard, is_red_turn: bool) -> list[MappedCheckerBoard]:
         return null;
 
     def __init__(self, red_checkers: int, black_checkers: int, king_checkers: int):
         self.__red_checkers = red_checkers; # red checkers positions
         self.__black_checkers = black_checkers; # black checkers positions
         self.__king_checkers = king_checkers; # subset of position of red_checkers and black_checkers
-        self.__total_red_mans_distance_to_king = self.__GetTotalDistanceToBeKing(self.getRedManCheckers(), True);
-        self.__total_black_mans_distance_to_king = self.__GetTotalDistanceToBeKing(self.getBlackManCheckers(), False);
+        self.__total_red_mans_distance_to_king = self.__GetTotalDistanceToBeKing(self.getRedManCheckers(), True); # O(d)
+        self.__total_black_mans_distance_to_king = self.__GetTotalDistanceToBeKing(self.getBlackManCheckers(), False); # O(d)
     
-    def __GetTotalDistanceToBeKing(self, man_checkers: int, is_red_side: bool) -> int:
+    @staticmethod
+    def __GetTotalDistanceToBeKing(man_checkers: int, is_red_side: bool) -> int: # O(d)
+        if man_checkers == 0:
+            return 0;
+        
         acccumulated_distance = 0;
 
         for i in range(MappedCheckerBoard.TOTAL_CHECKER_BOARD_DARK_SQUARES):
@@ -109,6 +125,10 @@ class MappedCheckerBoard:
     def getTotalBlackMansDistanceToKing(self) -> int:
         return self.__total_black_mans_distance_to_king;
 
+    #
+    # Other Functions 
+    #
+
     # Gets the not unique signature of the state for comparison with likewise states (not unique because it is possible to have different board states with the same signature)
     def getStateSignature(self) -> tuple[int, int, int, int, int, int]:
         return (
@@ -144,6 +164,6 @@ class MappedCheckerBoard:
     {self.__total_black_mans_distance_to_king}=Black_Mans_Distance_To_King
     """;
 
-# Testing
-checkerBoard = MappedCheckerBoard(0b_11_1111_0000_0000_0000, 0b_00_0000_0000_0011_1111, 0b_00_0010_0000_0000_0110);
-print(checkerBoard);
+# -- Testing ---
+# checkerBoard = MappedCheckerBoard(0b_11_1111_0000_0000_0000, 0b_00_0000_0000_0011_1111, 0b_00_0000_0000_0000_0000);
+# print(checkerBoard);

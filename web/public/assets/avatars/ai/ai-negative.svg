@@ -1,0 +1,118 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1536" height="256" viewBox="0 0 1536 256">
+  <defs>
+    <linearGradient id="ai-metal" x1="74" y1="42" x2="176" y2="156" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#efe4d2"/>
+      <stop offset="0.45" stop-color="#bea98a"/>
+      <stop offset="1" stop-color="#695540"/>
+    </linearGradient>
+    <linearGradient id="ai-face" x1="98" y1="58" x2="158" y2="130" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#f2eadc"/>
+      <stop offset="1" stop-color="#b99f7f"/>
+    </linearGradient>
+    <linearGradient id="ai-body" x1="66" y1="150" x2="194" y2="230" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#443327"/>
+      <stop offset="1" stop-color="#241913"/>
+    </linearGradient>
+    <linearGradient id="ai-brass" x1="96" y1="34" x2="160" y2="78" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#dfc589"/>
+      <stop offset="1" stop-color="#906c33"/>
+    </linearGradient>
+    <radialGradient id="ai-halo" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(128 94) rotate(90) scale(76)">
+      <stop offset="0" stop-color="#c7af8a" stop-opacity="0.35"/>
+      <stop offset="1" stop-color="#c7af8a" stop-opacity="0"/>
+    </radialGradient>
+    <symbol id="ai-base" viewBox="0 0 256 256">
+      <ellipse cx="128" cy="212" rx="70" ry="16" fill="#2f241d" fill-opacity="0.2"/>
+      <path d="M54 208c0-33 33-58 74-58s74 25 74 58v16H54z" fill="url(#ai-body)"/>
+      <path d="M88 148h80v30H88z" fill="#39291f"/>
+      <path d="M95 155h18v10H95zm24 0h18v10h-18zm24 0h18v10h-18z" fill="#bfa57f" fill-opacity="0.66"/>
+      <circle cx="128" cy="94" r="54" fill="url(#ai-metal)"/>
+      <ellipse cx="128" cy="96" rx="39" ry="31" fill="url(#ai-face)"/>
+      <circle cx="70" cy="98" r="14" fill="#32261e"/>
+      <circle cx="186" cy="98" r="14" fill="#32261e"/>
+      <circle cx="70" cy="98" r="8.5" fill="#a88d63"/>
+      <circle cx="186" cy="98" r="8.5" fill="#a88d63"/>
+      <rect x="109" y="30" width="38" height="9" rx="4.5" fill="url(#ai-brass)"/>
+      <circle cx="128" cy="28" r="7.5" fill="#c9a562"/>
+      <path d="M122 111h12l-2 11h-8z" fill="#725b3f"/>
+    </symbol>
+  </defs>
+
+  <g transform="translate(0 0)">
+    <g transform="translate(0 0)">
+      <circle cx="128" cy="94" r="76" fill="url(#ai-halo)" opacity="0.7"/>
+      <use href="#ai-base"/>
+      <path d="M101 90h17m20 0h17" stroke="#554133" stroke-width="3.2" stroke-linecap="round"/>
+      <ellipse cx="110" cy="95" rx="8.1" ry="3.7" fill="#efe4d4"/>
+      <ellipse cx="146" cy="95" rx="8.1" ry="3.7" fill="#efe4d4"/>
+      <circle cx="111" cy="95" r="2.3" fill="#891010"/>
+      <circle cx="147" cy="95" r="2.3" fill="#891010"/>
+      <path d="M112 126q16 -9 32 0" fill="none" stroke="#4e3b2c" stroke-width="4.2" stroke-linecap="round"/>
+    </g>
+  </g>
+
+  <g transform="translate(256 0)">
+    <g transform="translate(0 1)">
+      <circle cx="128" cy="94" r="75" fill="url(#ai-halo)" opacity="0.64"/>
+      <use href="#ai-base"/>
+      <path d="M101 90h17m20 0h17" stroke="#554133" stroke-width="3.2" stroke-linecap="round"/>
+      <ellipse cx="110" cy="95" rx="8" ry="3.4" fill="#efe4d4"/>
+      <ellipse cx="146" cy="95" rx="8" ry="3.4" fill="#efe4d4"/>
+      <circle cx="111" cy="95" r="2.2" fill="#891010"/>
+      <circle cx="147" cy="95" r="2.2" fill="#891010"/>
+      <path d="M112 126q16 -10 32 0" fill="none" stroke="#4e3b2c" stroke-width="4.2" stroke-linecap="round"/>
+    </g>
+  </g>
+
+  <g transform="translate(512 0)">
+    <g transform="translate(0 2)">
+      <circle cx="128" cy="94" r="74" fill="url(#ai-halo)" opacity="0.58"/>
+      <use href="#ai-base"/>
+      <path d="M101 90h17m20 0h17" stroke="#554133" stroke-width="3.2" stroke-linecap="round"/>
+      <ellipse cx="110" cy="95" rx="7.9" ry="3.2" fill="#efe4d4"/>
+      <ellipse cx="146" cy="95" rx="7.9" ry="3.2" fill="#efe4d4"/>
+      <circle cx="111" cy="95" r="2.1" fill="#891010"/>
+      <circle cx="147" cy="95" r="2.1" fill="#891010"/>
+      <path d="M112 126q16 -11 32 0" fill="none" stroke="#4e3b2c" stroke-width="4.2" stroke-linecap="round"/>
+    </g>
+  </g>
+
+  <g transform="translate(768 0)">
+    <g transform="translate(0 2)">
+      <circle cx="128" cy="94" r="74" fill="url(#ai-halo)" opacity="0.58"/>
+      <use href="#ai-base"/>
+      <path d="M101 90h17m20 0h17" stroke="#554133" stroke-width="3.2" stroke-linecap="round"/>
+      <ellipse cx="109.5" cy="95" rx="7.9" ry="3.2" fill="#efe4d4"/>
+      <ellipse cx="145.5" cy="95" rx="7.9" ry="3.2" fill="#efe4d4"/>
+      <circle cx="110.5" cy="95" r="2.1" fill="#891010"/>
+      <circle cx="146.5" cy="95" r="2.1" fill="#891010"/>
+      <path d="M112 126q16 -11 32 0" fill="none" stroke="#4e3b2c" stroke-width="4.2" stroke-linecap="round"/>
+    </g>
+  </g>
+
+  <g transform="translate(1024 0)">
+    <g transform="translate(0 1)">
+      <circle cx="128" cy="94" r="75" fill="url(#ai-halo)" opacity="0.64"/>
+      <use href="#ai-base"/>
+      <path d="M101 90h17m20 0h17" stroke="#554133" stroke-width="3.2" stroke-linecap="round"/>
+      <ellipse cx="109.5" cy="95" rx="8" ry="3.4" fill="#efe4d4"/>
+      <ellipse cx="145.5" cy="95" rx="8" ry="3.4" fill="#efe4d4"/>
+      <circle cx="110.5" cy="95" r="2.2" fill="#891010"/>
+      <circle cx="146.5" cy="95" r="2.2" fill="#891010"/>
+      <path d="M112 126q16 -10 32 0" fill="none" stroke="#4e3b2c" stroke-width="4.2" stroke-linecap="round"/>
+    </g>
+  </g>
+
+  <g transform="translate(1280 0)">
+    <g transform="translate(0 0)">
+      <circle cx="128" cy="94" r="76" fill="url(#ai-halo)" opacity="0.7"/>
+      <use href="#ai-base"/>
+      <path d="M101 90h17m20 0h17" stroke="#554133" stroke-width="3.2" stroke-linecap="round"/>
+      <ellipse cx="110" cy="95" rx="8.1" ry="3.7" fill="#efe4d4"/>
+      <ellipse cx="146" cy="95" rx="8.1" ry="3.7" fill="#efe4d4"/>
+      <circle cx="111" cy="95" r="2.3" fill="#891010"/>
+      <circle cx="147" cy="95" r="2.3" fill="#891010"/>
+      <path d="M112 126q16 -9 32 0" fill="none" stroke="#4e3b2c" stroke-width="4.2" stroke-linecap="round"/>
+    </g>
+  </g>
+</svg>

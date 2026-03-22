@@ -5,17 +5,18 @@ export default function TeamAvatarSlot({
   stats = [],
   isActiveTurn = false,
   toneClasses = '',
-  activeClasses = ''
+  activeClasses = '',
+  avatar = null
 }) {
   return (
     <aside className={`w-full ${className}`.trim()} aria-label={ariaLabel}>
       <div className='mx-auto w-full max-w-[18rem] text-center'>
         <div
-          className={`grid aspect-square w-full place-items-center rounded-[1.75rem] border-2 border-dashed text-[0.68rem] uppercase tracking-[0.2em] ${
+          className={`grid aspect-square w-full place-items-center rounded-[1.75rem] text-[0.68rem] uppercase tracking-[0.2em] ${
             isActiveTurn ? activeClasses : toneClasses
           }`}
         >
-          <span className='font-mono'>Avatar / Animation</span>
+          {avatar ?? <span className='font-mono'>Avatar / Animation</span>}
         </div>
 
         <p className='mt-4 font-serif text-xl font-bold tracking-wide'>

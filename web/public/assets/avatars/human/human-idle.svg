@@ -1,0 +1,472 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1536" height="256" viewBox="0 0 1536 256" fill="none">
+  <defs>
+    <!-- warm badge gradient -->
+    <radialGradient id="badgeGrad" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse"
+      gradientTransform="translate(128 96) rotate(90) scale(160 160)">
+      <stop offset="0" stop-color="#FFF2C9" stop-opacity="0.95"/>
+      <stop offset="0.55" stop-color="#F3D07B" stop-opacity="0.85"/>
+      <stop offset="1" stop-color="#B9782D" stop-opacity="0.75"/>
+    </radialGradient>
+
+    <linearGradient id="vestGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#7B0F1A"/>
+      <stop offset="1" stop-color="#3F0810"/>
+    </linearGradient>
+
+    <linearGradient id="hairGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#2B1A12"/>
+      <stop offset="1" stop-color="#140B08"/>
+    </linearGradient>
+
+    <filter id="softShadow" x="-50%" y="-50%" width="200%" height="200%">
+      <feOffset dx="0" dy="6" in="SourceAlpha" result="off"/>
+      <feGaussianBlur stdDeviation="8" in="off" result="blur"/>
+      <feColorMatrix in="blur" type="matrix"
+        values="0 0 0 0 0
+                0 0 0 0 0
+                0 0 0 0 0
+                0 0 0 0.25 0" result="shadow"/>
+      <feMerge>
+        <feMergeNode in="shadow"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <!-- helper: tiny highlight -->
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="2" result="b"/>
+      <feColorMatrix in="b" type="matrix"
+        values="1 0 0 0 0
+                0 1 0 0 0
+                0 0 1 0 0
+                0 0 0 0.35 0" result="g"/>
+      <feMerge>
+        <feMergeNode in="g"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <!-- Common outline color -->
+    <style>
+      .ol { stroke:#2A120B; stroke-opacity:0.9; stroke-width:4; stroke-linecap:round; stroke-linejoin:round; }
+      .ol2 { stroke:#2A120B; stroke-opacity:0.65; stroke-width:3; stroke-linecap:round; stroke-linejoin:round; }
+    </style>
+  </defs>
+
+  <!-- Build 6 frames: each frame is a group translated by 256px -->
+  <!-- Frame template uses a subtle bob (dy) and a blink frame (eyes) -->
+
+  <!-- ========== FRAME 0 (neutral) ========== -->
+  <g transform="translate(0 0)">
+    <g filter="url(#softShadow)">
+      <!-- badge/backplate -->
+      <circle cx="128" cy="128" r="108" fill="url(#badgeGrad)"/>
+      <circle cx="128" cy="128" r="108" class="ol2" fill="none"/>
+
+      <!-- small checker medallion at bottom -->
+      <g transform="translate(0 0)">
+        <circle cx="128" cy="205" r="26" fill="#C08A3E" class="ol2"/>
+        <circle cx="128" cy="205" r="20" fill="#6D1B1B"/>
+        <!-- tiny checker pattern -->
+        <g opacity="0.9">
+          <rect x="116" y="193" width="8" height="8" fill="#F5E6C8"/>
+          <rect x="124" y="193" width="8" height="8" fill="#2A120B"/>
+          <rect x="132" y="193" width="8" height="8" fill="#F5E6C8"/>
+          <rect x="116" y="201" width="8" height="8" fill="#2A120B"/>
+          <rect x="124" y="201" width="8" height="8" fill="#F5E6C8"/>
+          <rect x="132" y="201" width="8" height="8" fill="#2A120B"/>
+          <rect x="116" y="209" width="8" height="8" fill="#F5E6C8"/>
+          <rect x="124" y="209" width="8" height="8" fill="#2A120B"/>
+          <rect x="132" y="209" width="8" height="8" fill="#F5E6C8"/>
+        </g>
+        <!-- tiny crown hint -->
+        <path d="M120 186 L124 178 L128 184 L132 178 L136 186 Z" fill="#E7C46A" class="ol2"/>
+      </g>
+
+      <!-- character group -->
+      <g transform="translate(0 0)">
+        <!-- shoulders -->
+        <path d="M54 198 C64 164, 86 146, 128 146 C170 146, 192 164, 202 198
+                 C186 214, 164 220, 128 220 C92 220, 70 214, 54 198 Z"
+              fill="url(#vestGrad)" class="ol"/>
+        <!-- shirt -->
+        <path d="M88 196 C92 170, 108 156, 128 156 C148 156, 164 170, 168 196
+                 C154 204, 142 208, 128 208 C114 208, 102 204, 88 196 Z"
+              fill="#F5E6C8" class="ol2"/>
+        <!-- vest trim -->
+        <path d="M92 202 C98 176, 112 162, 128 162 C144 162, 158 176, 164 202"
+              fill="none" class="ol2" opacity="0.7"/>
+
+        <!-- neck -->
+        <path d="M114 144 C114 158, 120 166, 128 166 C136 166, 142 158, 142 144"
+              fill="#E9C8A9" class="ol2"/>
+
+        <!-- head -->
+        <g>
+          <path d="M80 114 C80 84, 99 62, 128 62 C157 62, 176 84, 176 114
+                   C176 146, 155 166, 128 166 C101 166, 80 146, 80 114 Z"
+                fill="#F0D0B3" class="ol"/>
+
+          <!-- ears -->
+          <path d="M77 114 C70 112, 68 104, 72 97 C78 88, 90 95, 86 106 C84 112, 82 115, 77 114 Z"
+                fill="#E9C2A3" class="ol2"/>
+          <path d="M179 114 C186 112, 188 104, 184 97 C178 88, 166 95, 170 106 C172 112, 174 115, 179 114 Z"
+                fill="#E9C2A3" class="ol2"/>
+
+          <!-- hair -->
+          <path d="M78 112 C78 78, 98 54, 132 54 C154 54, 172 66, 178 90
+                   C166 86, 156 86, 146 94
+                   C136 100, 126 100, 116 94
+                   C104 88, 92 90, 78 112 Z"
+                fill="url(#hairGrad)" class="ol"/>
+
+          <!-- eyebrows -->
+          <path d="M102 112 C110 106, 120 106, 126 112" class="ol2" fill="none"/>
+          <path d="M130 112 C136 106, 146 106, 154 112" class="ol2" fill="none"/>
+
+          <!-- eyes (open) -->
+          <g>
+            <ellipse cx="116" cy="124" rx="10" ry="7" fill="#2A120B"/>
+            <ellipse cx="140" cy="124" rx="10" ry="7" fill="#2A120B"/>
+            <circle cx="119" cy="122.5" r="2" fill="#F5E6C8"/>
+            <circle cx="143" cy="122.5" r="2" fill="#F5E6C8"/>
+          </g>
+
+          <!-- nose -->
+          <path d="M128 132 C126 136, 130 138, 132 136" class="ol2" fill="none" opacity="0.7"/>
+
+          <!-- mouth -->
+          <path d="M116 146 C122 152, 134 152, 140 146" class="ol2" fill="none"/>
+          <!-- cheek blush -->
+          <circle cx="100" cy="136" r="7" fill="#E5907F" opacity="0.35"/>
+          <circle cx="156" cy="136" r="7" fill="#E5907F" opacity="0.35"/>
+        </g>
+
+        <!-- subtle sparkles (tiny, tasteful) -->
+        <g filter="url(#glow)" opacity="0.55">
+          <path d="M196 96 L202 98 L196 100 L194 106 L192 100 L186 98 L192 96 L194 90 Z" fill="#FFF2C9"/>
+          <path d="M60 84 L64 85 L60 86 L59 90 L58 86 L54 85 L58 84 L59 80 Z" fill="#FFF2C9"/>
+        </g>
+      </g>
+    </g>
+  </g>
+
+  <!-- ========== FRAME 1 (slight up) ========== -->
+  <g transform="translate(256 0)">
+    <use href="#frame0" />
+  </g>
+
+  <!-- NOTE:
+       <use> with an id would be ideal, but some SVG loaders are picky.
+       So below we duplicate frames manually with tiny differences.
+       Frames 1-5 are copies of frame 0 with small dy + eye variations. -->
+
+  <!-- Helper: Copy-paste the frame and adjust dy + eyes -->
+  <!-- ========== FRAME 1 ========== -->
+  <g transform="translate(256 0)">
+    <g filter="url(#softShadow)">
+      <circle cx="128" cy="128" r="108" fill="url(#badgeGrad)"/>
+      <circle cx="128" cy="128" r="108" class="ol2" fill="none"/>
+
+      <g transform="translate(0 0)">
+        <circle cx="128" cy="205" r="26" fill="#C08A3E" class="ol2"/>
+        <circle cx="128" cy="205" r="20" fill="#6D1B1B"/>
+        <g opacity="0.9">
+          <rect x="116" y="193" width="8" height="8" fill="#F5E6C8"/>
+          <rect x="124" y="193" width="8" height="8" fill="#2A120B"/>
+          <rect x="132" y="193" width="8" height="8" fill="#F5E6C8"/>
+          <rect x="116" y="201" width="8" height="8" fill="#2A120B"/>
+          <rect x="124" y="201" width="8" height="8" fill="#F5E6C8"/>
+          <rect x="132" y="201" width="8" height="8" fill="#2A120B"/>
+          <rect x="116" y="209" width="8" height="8" fill="#F5E6C8"/>
+          <rect x="124" y="209" width="8" height="8" fill="#2A120B"/>
+          <rect x="132" y="209" width="8" height="8" fill="#F5E6C8"/>
+        </g>
+        <path d="M120 186 L124 178 L128 184 L132 178 L136 186 Z" fill="#E7C46A" class="ol2"/>
+      </g>
+
+      <!-- bob up slightly -->
+      <g transform="translate(0 -2)">
+        <path d="M54 198 C64 164, 86 146, 128 146 C170 146, 192 164, 202 198
+                 C186 214, 164 220, 128 220 C92 220, 70 214, 54 198 Z"
+              fill="url(#vestGrad)" class="ol"/>
+        <path d="M88 196 C92 170, 108 156, 128 156 C148 156, 164 170, 168 196
+                 C154 204, 142 208, 128 208 C114 208, 102 204, 88 196 Z"
+              fill="#F5E6C8" class="ol2"/>
+        <path d="M92 202 C98 176, 112 162, 128 162 C144 162, 158 176, 164 202"
+              fill="none" class="ol2" opacity="0.7"/>
+        <path d="M114 144 C114 158, 120 166, 128 166 C136 166, 142 158, 142 144"
+              fill="#E9C8A9" class="ol2"/>
+
+        <path d="M80 114 C80 84, 99 62, 128 62 C157 62, 176 84, 176 114
+                 C176 146, 155 166, 128 166 C101 166, 80 146, 80 114 Z"
+              fill="#F0D0B3" class="ol"/>
+        <path d="M77 114 C70 112, 68 104, 72 97 C78 88, 90 95, 86 106 C84 112, 82 115, 77 114 Z"
+              fill="#E9C2A3" class="ol2"/>
+        <path d="M179 114 C186 112, 188 104, 184 97 C178 88, 166 95, 170 106 C172 112, 174 115, 179 114 Z"
+              fill="#E9C2A3" class="ol2"/>
+        <path d="M78 112 C78 78, 98 54, 132 54 C154 54, 172 66, 178 90
+                 C166 86, 156 86, 146 94
+                 C136 100, 126 100, 116 94
+                 C104 88, 92 90, 78 112 Z"
+              fill="url(#hairGrad)" class="ol"/>
+
+        <path d="M102 112 C110 106, 120 106, 126 112" class="ol2" fill="none"/>
+        <path d="M130 112 C136 106, 146 106, 154 112" class="ol2" fill="none"/>
+
+        <!-- eyes open, slightly happier -->
+        <ellipse cx="116" cy="124" rx="10" ry="7" fill="#2A120B"/>
+        <ellipse cx="140" cy="124" rx="10" ry="7" fill="#2A120B"/>
+        <circle cx="120" cy="122.5" r="2" fill="#F5E6C8"/>
+        <circle cx="144" cy="122.5" r="2" fill="#F5E6C8"/>
+
+        <path d="M128 132 C126 136, 130 138, 132 136" class="ol2" fill="none" opacity="0.7"/>
+        <path d="M116 146 C122 152, 134 152, 140 146" class="ol2" fill="none"/>
+        <circle cx="100" cy="136" r="7" fill="#E5907F" opacity="0.35"/>
+        <circle cx="156" cy="136" r="7" fill="#E5907F" opacity="0.35"/>
+
+        <g filter="url(#glow)" opacity="0.55">
+          <path d="M196 96 L202 98 L196 100 L194 106 L192 100 L186 98 L192 96 L194 90 Z" fill="#FFF2C9"/>
+          <path d="M60 84 L64 85 L60 86 L59 90 L58 86 L54 85 L58 84 L59 80 Z" fill="#FFF2C9"/>
+        </g>
+      </g>
+    </g>
+  </g>
+
+  <!-- ========== FRAME 2 (back to neutral) ========== -->
+  <g transform="translate(512 0)">
+    <!-- reuse frame 0 look -->
+    <!-- For simplicity: same as frame 0 but with tiny bob down (dy=0) -->
+    <!-- Copy of frame 0 (kept consistent) -->
+    <g filter="url(#softShadow)">
+      <circle cx="128" cy="128" r="108" fill="url(#badgeGrad)"/>
+      <circle cx="128" cy="128" r="108" class="ol2" fill="none"/>
+      <g>
+        <circle cx="128" cy="205" r="26" fill="#C08A3E" class="ol2"/>
+        <circle cx="128" cy="205" r="20" fill="#6D1B1B"/>
+        <g opacity="0.9">
+          <rect x="116" y="193" width="8" height="8" fill="#F5E6C8"/>
+          <rect x="124" y="193" width="8" height="8" fill="#2A120B"/>
+          <rect x="132" y="193" width="8" height="8" fill="#F5E6C8"/>
+          <rect x="116" y="201" width="8" height="8" fill="#2A120B"/>
+          <rect x="124" y="201" width="8" height="8" fill="#F5E6C8"/>
+          <rect x="132" y="201" width="8" height="8" fill="#2A120B"/>
+          <rect x="116" y="209" width="8" height="8" fill="#F5E6C8"/>
+          <rect x="124" y="209" width="8" height="8" fill="#2A120B"/>
+          <rect x="132" y="209" width="8" height="8" fill="#F5E6C8"/>
+        </g>
+        <path d="M120 186 L124 178 L128 184 L132 178 L136 186 Z" fill="#E7C46A" class="ol2"/>
+      </g>
+
+      <g transform="translate(0 0)">
+        <path d="M54 198 C64 164, 86 146, 128 146 C170 146, 192 164, 202 198
+                 C186 214, 164 220, 128 220 C92 220, 70 214, 54 198 Z"
+              fill="url(#vestGrad)" class="ol"/>
+        <path d="M88 196 C92 170, 108 156, 128 156 C148 156, 164 170, 168 196
+                 C154 204, 142 208, 128 208 C114 208, 102 204, 88 196 Z"
+              fill="#F5E6C8" class="ol2"/>
+        <path d="M92 202 C98 176, 112 162, 128 162 C144 162, 158 176, 164 202"
+              fill="none" class="ol2" opacity="0.7"/>
+        <path d="M114 144 C114 158, 120 166, 128 166 C136 166, 142 158, 142 144"
+              fill="#E9C8A9" class="ol2"/>
+
+        <path d="M80 114 C80 84, 99 62, 128 62 C157 62, 176 84, 176 114
+                 C176 146, 155 166, 128 166 C101 166, 80 146, 80 114 Z"
+              fill="#F0D0B3" class="ol"/>
+        <path d="M77 114 C70 112, 68 104, 72 97 C78 88, 90 95, 86 106 C84 112, 82 115, 77 114 Z"
+              fill="#E9C2A3" class="ol2"/>
+        <path d="M179 114 C186 112, 188 104, 184 97 C178 88, 166 95, 170 106 C172 112, 174 115, 179 114 Z"
+              fill="#E9C2A3" class="ol2"/>
+        <path d="M78 112 C78 78, 98 54, 132 54 C154 54, 172 66, 178 90
+                 C166 86, 156 86, 146 94
+                 C136 100, 126 100, 116 94
+                 C104 88, 92 90, 78 112 Z"
+              fill="url(#hairGrad)" class="ol"/>
+
+        <path d="M102 112 C110 106, 120 106, 126 112" class="ol2" fill="none"/>
+        <path d="M130 112 C136 106, 146 106, 154 112" class="ol2" fill="none"/>
+
+        <ellipse cx="116" cy="124" rx="10" ry="7" fill="#2A120B"/>
+        <ellipse cx="140" cy="124" rx="10" ry="7" fill="#2A120B"/>
+        <circle cx="119" cy="122.5" r="2" fill="#F5E6C8"/>
+        <circle cx="143" cy="122.5" r="2" fill="#F5E6C8"/>
+
+        <path d="M128 132 C126 136, 130 138, 132 136" class="ol2" fill="none" opacity="0.7"/>
+        <path d="M116 146 C122 152, 134 152, 140 146" class="ol2" fill="none"/>
+        <circle cx="100" cy="136" r="7" fill="#E5907F" opacity="0.35"/>
+        <circle cx="156" cy="136" r="7" fill="#E5907F" opacity="0.35"/>
+
+        <g filter="url(#glow)" opacity="0.5">
+          <path d="M196 96 L202 98 L196 100 L194 106 L192 100 L186 98 L192 96 L194 90 Z" fill="#FFF2C9"/>
+        </g>
+      </g>
+    </g>
+  </g>
+
+  <!-- ========== FRAME 3 (blink) ========== -->
+  <g transform="translate(768 0)">
+    <g filter="url(#softShadow)">
+      <circle cx="128" cy="128" r="108" fill="url(#badgeGrad)"/>
+      <circle cx="128" cy="128" r="108" class="ol2" fill="none"/>
+
+      <g>
+        <circle cx="128" cy="205" r="26" fill="#C08A3E" class="ol2"/>
+        <circle cx="128" cy="205" r="20" fill="#6D1B1B"/>
+        <g opacity="0.9">
+          <rect x="116" y="193" width="8" height="8" fill="#F5E6C8"/>
+          <rect x="124" y="193" width="8" height="8" fill="#2A120B"/>
+          <rect x="132" y="193" width="8" height="8" fill="#F5E6C8"/>
+          <rect x="116" y="201" width="8" height="8" fill="#2A120B"/>
+          <rect x="124" y="201" width="8" height="8" fill="#F5E6C8"/>
+          <rect x="132" y="201" width="8" height="8" fill="#2A120B"/>
+          <rect x="116" y="209" width="8" height="8" fill="#F5E6C8"/>
+          <rect x="124" y="209" width="8" height="8" fill="#2A120B"/>
+          <rect x="132" y="209" width="8" height="8" fill="#F5E6C8"/>
+        </g>
+        <path d="M120 186 L124 178 L128 184 L132 178 L136 186 Z" fill="#E7C46A" class="ol2"/>
+      </g>
+
+      <g transform="translate(0 1)">
+        <path d="M54 198 C64 164, 86 146, 128 146 C170 146, 192 164, 202 198
+                 C186 214, 164 220, 128 220 C92 220, 70 214, 54 198 Z"
+              fill="url(#vestGrad)" class="ol"/>
+        <path d="M88 196 C92 170, 108 156, 128 156 C148 156, 164 170, 168 196
+                 C154 204, 142 208, 128 208 C114 208, 102 204, 88 196 Z"
+              fill="#F5E6C8" class="ol2"/>
+        <path d="M92 202 C98 176, 112 162, 128 162 C144 162, 158 176, 164 202"
+              fill="none" class="ol2" opacity="0.7"/>
+        <path d="M114 144 C114 158, 120 166, 128 166 C136 166, 142 158, 142 144"
+              fill="#E9C8A9" class="ol2"/>
+
+        <path d="M80 114 C80 84, 99 62, 128 62 C157 62, 176 84, 176 114
+                 C176 146, 155 166, 128 166 C101 166, 80 146, 80 114 Z"
+              fill="#F0D0B3" class="ol"/>
+        <path d="M77 114 C70 112, 68 104, 72 97 C78 88, 90 95, 86 106 C84 112, 82 115, 77 114 Z"
+              fill="#E9C2A3" class="ol2"/>
+        <path d="M179 114 C186 112, 188 104, 184 97 C178 88, 166 95, 170 106 C172 112, 174 115, 179 114 Z"
+              fill="#E9C2A3" class="ol2"/>
+        <path d="M78 112 C78 78, 98 54, 132 54 C154 54, 172 66, 178 90
+                 C166 86, 156 86, 146 94
+                 C136 100, 126 100, 116 94
+                 C104 88, 92 90, 78 112 Z"
+              fill="url(#hairGrad)" class="ol"/>
+
+        <path d="M102 112 C110 106, 120 106, 126 112" class="ol2" fill="none"/>
+        <path d="M130 112 C136 106, 146 106, 154 112" class="ol2" fill="none"/>
+
+        <!-- eyes BLINK (lines) -->
+        <path d="M106 124 C112 128, 120 128, 126 124" class="ol2" fill="none"/>
+        <path d="M130 124 C136 128, 144 128, 150 124" class="ol2" fill="none"/>
+
+        <path d="M128 132 C126 136, 130 138, 132 136" class="ol2" fill="none" opacity="0.7"/>
+        <path d="M116 146 C122 152, 134 152, 140 146" class="ol2" fill="none"/>
+        <circle cx="100" cy="136" r="7" fill="#E5907F" opacity="0.32"/>
+        <circle cx="156" cy="136" r="7" fill="#E5907F" opacity="0.32"/>
+      </g>
+    </g>
+  </g>
+
+  <!-- ========== FRAME 4 (open, tiny smile) ========== -->
+  <g transform="translate(1024 0)">
+    <!-- same as frame 0, but slightly brighter smile -->
+    <g filter="url(#softShadow)">
+      <circle cx="128" cy="128" r="108" fill="url(#badgeGrad)"/>
+      <circle cx="128" cy="128" r="108" class="ol2" fill="none"/>
+      <g transform="translate(0 0)">
+        <circle cx="128" cy="205" r="26" fill="#C08A3E" class="ol2"/>
+        <circle cx="128" cy="205" r="20" fill="#6D1B1B"/>
+        <g opacity="0.9">
+          <rect x="116" y="193" width="8" height="8" fill="#F5E6C8"/>
+          <rect x="124" y="193" width="8" height="8" fill="#2A120B"/>
+          <rect x="132" y="193" width="8" height="8" fill="#F5E6C8"/>
+          <rect x="116" y="201" width="8" height="8" fill="#2A120B"/>
+          <rect x="124" y="201" width="8" height="8" fill="#F5E6C8"/>
+          <rect x="132" y="201" width="8" height="8" fill="#2A120B"/>
+          <rect x="116" y="209" width="8" height="8" fill="#F5E6C8"/>
+          <rect x="124" y="209" width="8" height="8" fill="#2A120B"/>
+          <rect x="132" y="209" width="8" height="8" fill="#F5E6C8"/>
+        </g>
+        <path d="M120 186 L124 178 L128 184 L132 178 L136 186 Z" fill="#E7C46A" class="ol2"/>
+      </g>
+
+      <g transform="translate(0 -1)">
+        <path d="M54 198 C64 164, 86 146, 128 146 C170 146, 192 164, 202 198
+                 C186 214, 164 220, 128 220 C92 220, 70 214, 54 198 Z"
+              fill="url(#vestGrad)" class="ol"/>
+        <path d="M88 196 C92 170, 108 156, 128 156 C148 156, 164 170, 168 196
+                 C154 204, 142 208, 128 208 C114 208, 102 204, 88 196 Z"
+              fill="#F5E6C8" class="ol2"/>
+        <path d="M114 144 C114 158, 120 166, 128 166 C136 166, 142 158, 142 144"
+              fill="#E9C8A9" class="ol2"/>
+
+        <path d="M80 114 C80 84, 99 62, 128 62 C157 62, 176 84, 176 114
+                 C176 146, 155 166, 128 166 C101 166, 80 146, 80 114 Z"
+              fill="#F0D0B3" class="ol"/>
+        <path d="M78 112 C78 78, 98 54, 132 54 C154 54, 172 66, 178 90
+                 C166 86, 156 86, 146 94
+                 C136 100, 126 100, 116 94
+                 C104 88, 92 90, 78 112 Z"
+              fill="url(#hairGrad)" class="ol"/>
+
+        <ellipse cx="116" cy="124" rx="10" ry="7" fill="#2A120B"/>
+        <ellipse cx="140" cy="124" rx="10" ry="7" fill="#2A120B"/>
+        <circle cx="119" cy="122.5" r="2" fill="#F5E6C8"/>
+        <circle cx="143" cy="122.5" r="2" fill="#F5E6C8"/>
+
+        <path d="M116 146 C122 155, 134 155, 140 146" class="ol2" fill="none"/>
+      </g>
+    </g>
+  </g>
+
+  <!-- ========== FRAME 5 (return) ========== -->
+  <g transform="translate(1280 0)">
+    <!-- close to frame 0 -->
+    <g filter="url(#softShadow)">
+      <circle cx="128" cy="128" r="108" fill="url(#badgeGrad)"/>
+      <circle cx="128" cy="128" r="108" class="ol2" fill="none"/>
+      <g transform="translate(0 0)">
+        <circle cx="128" cy="205" r="26" fill="#C08A3E" class="ol2"/>
+        <circle cx="128" cy="205" r="20" fill="#6D1B1B"/>
+        <g opacity="0.9">
+          <rect x="116" y="193" width="8" height="8" fill="#F5E6C8"/>
+          <rect x="124" y="193" width="8" height="8" fill="#2A120B"/>
+          <rect x="132" y="193" width="8" height="8" fill="#F5E6C8"/>
+          <rect x="116" y="201" width="8" height="8" fill="#2A120B"/>
+          <rect x="124" y="201" width="8" height="8" fill="#F5E6C8"/>
+          <rect x="132" y="201" width="8" height="8" fill="#2A120B"/>
+          <rect x="116" y="209" width="8" height="8" fill="#F5E6C8"/>
+          <rect x="124" y="209" width="8" height="8" fill="#2A120B"/>
+          <rect x="132" y="209" width="8" height="8" fill="#F5E6C8"/>
+        </g>
+        <path d="M120 186 L124 178 L128 184 L132 178 L136 186 Z" fill="#E7C46A" class="ol2"/>
+      </g>
+
+      <g transform="translate(0 0)">
+        <path d="M54 198 C64 164, 86 146, 128 146 C170 146, 192 164, 202 198
+                 C186 214, 164 220, 128 220 C92 220, 70 214, 54 198 Z"
+              fill="url(#vestGrad)" class="ol"/>
+        <path d="M88 196 C92 170, 108 156, 128 156 C148 156, 164 170, 168 196
+                 C154 204, 142 208, 128 208 C114 208, 102 204, 88 196 Z"
+              fill="#F5E6C8" class="ol2"/>
+        <path d="M114 144 C114 158, 120 166, 128 166 C136 166, 142 158, 142 144"
+              fill="#E9C8A9" class="ol2"/>
+
+        <path d="M80 114 C80 84, 99 62, 128 62 C157 62, 176 84, 176 114
+                 C176 146, 155 166, 128 166 C101 166, 80 146, 80 114 Z"
+              fill="#F0D0B3" class="ol"/>
+        <path d="M78 112 C78 78, 98 54, 132 54 C154 54, 172 66, 178 90
+                 C166 86, 156 86, 146 94
+                 C136 100, 126 100, 116 94
+                 C104 88, 92 90, 78 112 Z"
+              fill="url(#hairGrad)" class="ol"/>
+
+        <ellipse cx="116" cy="124" rx="10" ry="7" fill="#2A120B"/>
+        <ellipse cx="140" cy="124" rx="10" ry="7" fill="#2A120B"/>
+        <circle cx="119" cy="122.5" r="2" fill="#F5E6C8"/>
+        <circle cx="143" cy="122.5" r="2" fill="#F5E6C8"/>
+
+        <path d="M116 146 C122 152, 134 152, 140 146" class="ol2" fill="none"/>
+      </g>
+    </g>
+  </g>
+</svg>

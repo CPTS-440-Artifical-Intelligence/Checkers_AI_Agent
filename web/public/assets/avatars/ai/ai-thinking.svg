@@ -1,0 +1,150 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1536" height="256" viewBox="0 0 1536 256">
+  <defs>
+    <linearGradient id="ai-metal" x1="74" y1="42" x2="176" y2="156" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#faf1df"/>
+      <stop offset="0.45" stop-color="#cbb697"/>
+      <stop offset="1" stop-color="#78644a"/>
+    </linearGradient>
+    <linearGradient id="ai-face" x1="98" y1="58" x2="158" y2="130" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#fdf6ea"/>
+      <stop offset="1" stop-color="#c0aa8a"/>
+    </linearGradient>
+    <linearGradient id="ai-body" x1="66" y1="150" x2="194" y2="230" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#4d3a2d"/>
+      <stop offset="1" stop-color="#2b1f18"/>
+    </linearGradient>
+    <linearGradient id="ai-brass" x1="96" y1="34" x2="160" y2="78" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#f5d79a"/>
+      <stop offset="1" stop-color="#a27b38"/>
+    </linearGradient>
+    <radialGradient id="ai-halo" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(128 96) rotate(90) scale(78)">
+      <stop offset="0" stop-color="#d4ba91" stop-opacity="0.58"/>
+      <stop offset="1" stop-color="#d4ba91" stop-opacity="0"/>
+    </radialGradient>
+    <symbol id="ai-shell" viewBox="0 0 256 256">
+      <ellipse cx="128" cy="212" rx="70" ry="16" fill="#2f241d" fill-opacity="0.2"/>
+      <path d="M54 208c0-33 33-58 74-58s74 25 74 58v16H54z" fill="url(#ai-body)"/>
+      <path d="M88 148h80v30H88z" fill="#412f24"/>
+      <path d="M95 155h18v10H95zm24 0h18v10h-18zm24 0h18v10h-18z" fill="#d0ba95" fill-opacity="0.72"/>
+    </symbol>
+    <symbol id="ai-head" viewBox="0 0 256 256">
+      <circle cx="128" cy="94" r="54" fill="url(#ai-metal)"/>
+      <ellipse cx="128" cy="96" rx="39" ry="31" fill="url(#ai-face)"/>
+      <circle cx="70" cy="98" r="14" fill="#3c2f25"/>
+      <circle cx="186" cy="98" r="14" fill="#3c2f25"/>
+      <circle cx="70" cy="98" r="8.5" fill="#b59a6f"/>
+      <circle cx="186" cy="98" r="8.5" fill="#b59a6f"/>
+      <rect x="109" y="30" width="38" height="9" rx="4.5" fill="url(#ai-brass)"/>
+      <circle cx="128" cy="28" r="7.5" fill="#d6b270"/>
+      <path d="M122 111h12l-2 11h-8z" fill="#8b6e48"/>
+    </symbol>
+  </defs>
+
+  <g transform="translate(0 0)">
+    <g transform="translate(0 0)">
+      <circle cx="128" cy="94" r="78" fill="url(#ai-halo)" opacity="0.8"/>
+      <circle cx="128" cy="94" r="67" fill="none" stroke="#d9be8d" stroke-opacity="0.35" stroke-width="2.5"/>
+      <circle cx="128" cy="94" r="82" fill="none" stroke="#a91717" stroke-opacity="0.25" stroke-width="2"/>
+      <use href="#ai-shell"/>
+      <g transform="rotate(-2 128 98)">
+        <use href="#ai-head"/>
+        <path d="M102 85h15m22 0h15" stroke="#5a4634" stroke-width="3" stroke-linecap="round"/>
+        <ellipse cx="109" cy="95" rx="8.3" ry="4.5" fill="#f9f1e2"/>
+        <ellipse cx="145" cy="95" rx="8.3" ry="4.5" fill="#f9f1e2"/>
+        <circle cx="105.5" cy="95" r="2.4" fill="#ad1313"/>
+        <circle cx="141.5" cy="95" r="2.4" fill="#ad1313"/>
+        <path d="M113 123q15 4 30 0" fill="none" stroke="#5b4636" stroke-width="4" stroke-linecap="round"/>
+      </g>
+    </g>
+  </g>
+
+  <g transform="translate(256 0)">
+    <g transform="translate(0 -1)">
+      <circle cx="128" cy="94" r="79" fill="url(#ai-halo)" opacity="0.86"/>
+      <circle cx="128" cy="94" r="72" fill="none" stroke="#d9be8d" stroke-opacity="0.45" stroke-width="2.8"/>
+      <circle cx="128" cy="94" r="88" fill="none" stroke="#a91717" stroke-opacity="0.22" stroke-width="2"/>
+      <use href="#ai-shell"/>
+      <g transform="translate(1 -1) rotate(-1 128 98)">
+        <use href="#ai-head"/>
+        <path d="M102 85h15m22 0h15" stroke="#5a4634" stroke-width="3" stroke-linecap="round"/>
+        <ellipse cx="110" cy="95" rx="8.2" ry="4.4" fill="#f9f1e2"/>
+        <ellipse cx="146" cy="95" rx="8.2" ry="4.4" fill="#f9f1e2"/>
+        <circle cx="114" cy="95" r="2.4" fill="#ad1313"/>
+        <circle cx="150" cy="95" r="2.4" fill="#ad1313"/>
+        <path d="M113 123q15 4 30 0" fill="none" stroke="#5b4636" stroke-width="4" stroke-linecap="round"/>
+      </g>
+    </g>
+  </g>
+
+  <g transform="translate(512 0)">
+    <g transform="translate(0 -2)">
+      <circle cx="128" cy="94" r="80" fill="url(#ai-halo)" opacity="0.9"/>
+      <circle cx="128" cy="94" r="75" fill="none" stroke="#d9be8d" stroke-opacity="0.5" stroke-width="3"/>
+      <circle cx="128" cy="94" r="93" fill="none" stroke="#a91717" stroke-opacity="0.2" stroke-width="2"/>
+      <use href="#ai-shell"/>
+      <g transform="translate(2 -1)">
+        <use href="#ai-head"/>
+        <path d="M102 85h15m22 0h15" stroke="#5a4634" stroke-width="3" stroke-linecap="round"/>
+        <ellipse cx="111.5" cy="95" rx="8.2" ry="4.3" fill="#f9f1e2"/>
+        <ellipse cx="147.5" cy="95" rx="8.2" ry="4.3" fill="#f9f1e2"/>
+        <circle cx="115.5" cy="95" r="2.3" fill="#ad1313"/>
+        <circle cx="151.5" cy="95" r="2.3" fill="#ad1313"/>
+        <path d="M113 123q15 4 30 0" fill="none" stroke="#5b4636" stroke-width="4" stroke-linecap="round"/>
+      </g>
+    </g>
+  </g>
+
+  <g transform="translate(768 0)">
+    <g transform="translate(0 -1)">
+      <circle cx="128" cy="94" r="79" fill="url(#ai-halo)" opacity="0.88"/>
+      <circle cx="128" cy="94" r="72" fill="none" stroke="#d9be8d" stroke-opacity="0.45" stroke-width="2.8"/>
+      <circle cx="128" cy="94" r="88" fill="none" stroke="#a91717" stroke-opacity="0.22" stroke-width="2"/>
+      <use href="#ai-shell"/>
+      <g transform="translate(1 0) rotate(1 128 98)">
+        <use href="#ai-head"/>
+        <path d="M102 85h15m22 0h15" stroke="#5a4634" stroke-width="3" stroke-linecap="round"/>
+        <ellipse cx="109.5" cy="95" rx="8.2" ry="4.4" fill="#f9f1e2"/>
+        <ellipse cx="145.5" cy="95" rx="8.2" ry="4.4" fill="#f9f1e2"/>
+        <circle cx="105.5" cy="95" r="2.4" fill="#ad1313"/>
+        <circle cx="141.5" cy="95" r="2.4" fill="#ad1313"/>
+        <path d="M113 123q15 4 30 0" fill="none" stroke="#5b4636" stroke-width="4" stroke-linecap="round"/>
+      </g>
+    </g>
+  </g>
+
+  <g transform="translate(1024 0)">
+    <g transform="translate(0 0)">
+      <circle cx="128" cy="94" r="78" fill="url(#ai-halo)" opacity="0.84"/>
+      <circle cx="128" cy="94" r="67" fill="none" stroke="#d9be8d" stroke-opacity="0.38" stroke-width="2.5"/>
+      <circle cx="128" cy="94" r="82" fill="none" stroke="#a91717" stroke-opacity="0.2" stroke-width="2"/>
+      <use href="#ai-shell"/>
+      <g transform="rotate(1.5 128 98)">
+        <use href="#ai-head"/>
+        <path d="M102 85h15m22 0h15" stroke="#5a4634" stroke-width="3" stroke-linecap="round"/>
+        <ellipse cx="108" cy="95" rx="8.3" ry="4.5" fill="#f9f1e2"/>
+        <ellipse cx="144" cy="95" rx="8.3" ry="4.5" fill="#f9f1e2"/>
+        <circle cx="104.5" cy="95" r="2.4" fill="#ad1313"/>
+        <circle cx="140.5" cy="95" r="2.4" fill="#ad1313"/>
+        <path d="M113 123q15 4 30 0" fill="none" stroke="#5b4636" stroke-width="4" stroke-linecap="round"/>
+      </g>
+    </g>
+  </g>
+
+  <g transform="translate(1280 0)">
+    <g transform="translate(0 1)">
+      <circle cx="128" cy="94" r="77" fill="url(#ai-halo)" opacity="0.8"/>
+      <circle cx="128" cy="94" r="65" fill="none" stroke="#d9be8d" stroke-opacity="0.33" stroke-width="2.4"/>
+      <circle cx="128" cy="94" r="79" fill="none" stroke="#a91717" stroke-opacity="0.18" stroke-width="2"/>
+      <use href="#ai-shell"/>
+      <g transform="rotate(2 128 98)">
+        <use href="#ai-head"/>
+        <path d="M102 85h15m22 0h15" stroke="#5a4634" stroke-width="3" stroke-linecap="round"/>
+        <ellipse cx="108.5" cy="95" rx="8.3" ry="4.5" fill="#f9f1e2"/>
+        <ellipse cx="144.5" cy="95" rx="8.3" ry="4.5" fill="#f9f1e2"/>
+        <circle cx="105" cy="95" r="2.4" fill="#ad1313"/>
+        <circle cx="141" cy="95" r="2.4" fill="#ad1313"/>
+        <path d="M113 123q15 4 30 0" fill="none" stroke="#5b4636" stroke-width="4" stroke-linecap="round"/>
+      </g>
+    </g>
+  </g>
+</svg>

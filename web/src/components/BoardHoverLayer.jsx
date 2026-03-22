@@ -18,7 +18,7 @@ export default function BoardHoverLayer({
 }) {
   return (
     <div
-      className='absolute z-20 grid grid-cols-8 grid-rows-8'
+      className='absolute z-20 grid grid-cols-6 grid-rows-6'
       style={playAreaStyle}
       onMouseLeave={() => onHoverSquare(null)}
     >

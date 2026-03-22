@@ -1,4 +1,4 @@
-const GLOW_SIZE_PERCENT = 92
+const GLOW_SIZE_PERCENT = 75
 
 const glowStyleByColor = {
   red: {

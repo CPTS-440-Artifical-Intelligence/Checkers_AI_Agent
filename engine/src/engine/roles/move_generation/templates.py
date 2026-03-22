@@ -3,7 +3,7 @@ from __future__ import annotations
 import copy
 from typing import Any
 
-_BOARD_SIZE = 8
+_BOARD_SIZE = 6
 _RED_PIECES = {"r", "R"}
 _BLACK_PIECES = {"b", "B"}
 

@@ -26,23 +26,23 @@ class TemplateModeTests(unittest.TestCase):
 
     def test_template_new_game_uses_imported_state(self) -> None:
         state = api_contract.new_game("template01")
-        self.assertEqual(state["board"][5][3], "r")
-        self.assertEqual(state["board"][2][4], "b")
+        self.assertEqual(state["board"][4][2], "r")
+        self.assertEqual(state["board"][2][3], "b")
         self.assertEqual(state["turn"], "red")
 
     def test_template_move_can_relocate_piece_to_any_square(self) -> None:
         state = api_contract.new_game("template02")
-        next_state, move_result = api_contract.apply_move(state, [[5, 3], [0, 0]])
-        self.assertEqual(next_state["board"][5][3], ".")
+        next_state, move_result = api_contract.apply_move(state, [[4, 2], [0, 0]])
+        self.assertEqual(next_state["board"][4][2], ".")
         self.assertEqual(next_state["board"][0][0], "r")
         self.assertEqual(next_state["turn"], "black")
-        self.assertEqual(move_result["path"], [[5, 3], [0, 0]])
+        self.assertEqual(move_result["path"], [[4, 2], [0, 0]])
 
     def test_template_legal_moves_are_generated_for_wiring(self) -> None:
         state = api_contract.new_game("template03")
         legal_moves = api_contract.get_legal_moves(state)
-        self.assertIn([[5, 3], [0, 0]], legal_moves)
-        self.assertIn([[5, 3], [2, 4]], legal_moves)
+        self.assertIn([[4, 2], [0, 0]], legal_moves)
+        self.assertIn([[4, 2], [2, 3]], legal_moves)
 
 
 if __name__ == "__main__":

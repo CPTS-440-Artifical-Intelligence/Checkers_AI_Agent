@@ -8,8 +8,8 @@ export class CheckersStartStateSpawner {
   constructor(options = {}) {
     this.#boardSize = options.boardSize ?? BOARD_SIZE
     this.#rowsByColor = options.rowsByColor ?? {
-      black: [0, 1, 2],
-      red: [3, 4, 5]
+      black: [0, 1],
+      red: [4, 5]
     }
     this.#idPrefixByColor = {
       black: 'b',

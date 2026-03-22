@@ -68,8 +68,8 @@ class APIContractTests(unittest.TestCase):
         self.assertIsNone(data["winner"])
         self.assertFalse(data["must_capture"])
         self.assertIsNone(data["last_move"])
-        self.assertEqual(len(data["board"]), 8)
-        self.assertTrue(all(len(row) == 8 for row in data["board"]))
+        self.assertEqual(len(data["board"]), 6)
+        self.assertTrue(all(len(row) == 6 for row in data["board"]))
 
     def test_get_unknown_game_returns_404_error_shape(self) -> None:
         status, data = self._request("GET", "/api/games/unknown")

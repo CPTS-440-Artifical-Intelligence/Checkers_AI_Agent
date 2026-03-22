@@ -4,7 +4,7 @@ from typing import Literal
 
 from pydantic import BaseModel, Field, field_validator
 
-_BOARD_SIZE = 8
+_BOARD_SIZE = 6
 _VALID_PIECES = {".", "r", "R", "b", "B"}
 
 
@@ -13,16 +13,16 @@ def _validate_coord(coord: list[int]) -> list[int]:
         raise ValueError("Each coordinate must have two integers.")
     row, col = coord
     if not (0 <= row < _BOARD_SIZE and 0 <= col < _BOARD_SIZE):
-        raise ValueError("Coordinates must be in the range [0, 7].")
+        raise ValueError("Coordinates must be in the range [0, 5].")
     return coord
 
 
 def _validate_board_shape(board: list[list[str]]) -> None:
     if len(board) != _BOARD_SIZE:
-        raise ValueError("Board must have 8 rows.")
+        raise ValueError("Board must have 6 rows.")
     for row in board:
         if len(row) != _BOARD_SIZE:
-            raise ValueError("Each board row must have 8 columns.")
+            raise ValueError("Each board row must have 6 columns.")
 
 
 def _validate_piece_codes(board: list[list[str]]) -> None:

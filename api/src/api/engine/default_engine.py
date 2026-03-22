@@ -5,7 +5,7 @@ import random
 
 from api.domain.models import AIMetrics, AgentConfig, Coordinate, GameStateData, LastMoveData, Path
 
-_BOARD_SIZE = 8
+_BOARD_SIZE = 6
 _EMPTY = "."
 _RED_PIECES = {"r", "R"}
 _BLACK_PIECES = {"b", "B"}
@@ -48,7 +48,7 @@ def _directions(piece: str) -> list[tuple[int, int]]:
 def _promote(piece: str, row: int) -> tuple[str, bool]:
     if piece == "r" and row == 0:
         return "R", True
-    if piece == "b" and row == 7:
+    if piece == "b" and row == 5:
         return "B", True
     return piece, False
 
@@ -63,11 +63,11 @@ def _empty_board() -> list[list[str]]:
 
 def _build_initial_board() -> list[list[str]]:
     board = _empty_board()
-    for row in range(3):
+    for row in range(2):
         for col in range(_BOARD_SIZE):
             if _is_dark_square(row, col):
                 board[row][col] = "b"
-    for row in range(5, _BOARD_SIZE):
+    for row in range(4, _BOARD_SIZE):
         for col in range(_BOARD_SIZE):
             if _is_dark_square(row, col):
                 board[row][col] = "r"

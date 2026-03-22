@@ -4,7 +4,7 @@ import BoardHoverLayer from './BoardHoverLayer'
 import PieceLayer, { CHECKER_SIZE_PERCENT } from './PieceLayer'
 import TurnGlowLayer from './TurnGlowLayer'
 
-const boardGeometry = new BoardGeometry(8)
+const boardGeometry = new BoardGeometry(6)
 const playAreaStyle = {
   top: '5.1%',
   right: '6.25%',

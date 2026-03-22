@@ -1,4 +1,4 @@
-import BoardIMG from '../assets/Board.png'
+import BoardIMG from '../assets/Board_6x6.png'
 
 export default function BoardFrame({ geometry, playAreaStyle }) {
   return (
@@ -9,7 +9,7 @@ export default function BoardFrame({ geometry, playAreaStyle }) {
         className='h-full w-full select-none object-cover pointer-events-none'
       />
 
-      <div className='absolute grid grid-cols-8 grid-rows-8 pointer-events-none' style={playAreaStyle}>
+      <div className='absolute grid grid-cols-6 grid-rows-6 pointer-events-none' style={playAreaStyle}>
         {geometry.cells.map((cell) => (
           <div
             key={cell.square}

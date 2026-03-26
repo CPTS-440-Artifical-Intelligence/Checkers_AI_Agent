@@ -1,21 +1,34 @@
 import { useEffect, useState } from 'react'
 
-const FRAME_COUNT = 6
+import agentActive  from '../assets/avatars/agent-active.png'
+import agentIdle    from '../assets/avatars/agent-idle.png'
+import agentLoss    from '../assets/avatars/agent-loss.png'
+import agentThink   from '../assets/avatars/agent-think.png'
+import agentWin     from '../assets/avatars/agent-win.png'
+import playerActive from '../assets/avatars/player-active.png'
+import playerIdle   from '../assets/avatars/player-idle.png'
+import playerLoss   from '../assets/avatars/player-loss.png'
+import playerThink  from '../assets/avatars/player-think.png'
+import playerWin    from '../assets/avatars/player-win.png'
+
+const GRID_COLUMNS = 6
+const GRID_ROWS = 6
+const FRAME_COUNT = GRID_COLUMNS * GRID_ROWS
 
 const SPRITE_PATHS = {
   ai: {
-    idle: '/assets/avatars/ai/ai-idle.svg',
-    thinking: '/assets/avatars/ai/ai-thinking.svg',
-    positive: '/assets/avatars/ai/ai-positive.svg',
-    negative: '/assets/avatars/ai/ai-negative.svg',
-    celebrate: '/assets/avatars/ai/ai-celebrate.svg'
+    idle: agentIdle,
+    active: agentActive,
+    thinking: agentThink,
+    win: agentWin,
+    loss: agentLoss
   },
   human: {
-    idle: '/assets/avatars/human/human-idle.svg',
-    thinking: '/assets/avatars/human/human-thinking.svg',
-    positive: '/assets/avatars/human/human-positive.svg',
-    negative: '/assets/avatars/human/human-negative.svg',
-    celebrate: '/assets/avatars/human/human-celebrate.svg'
+    idle: playerIdle,
+    active: playerActive,
+    thinking: playerThink,
+    win: playerWin,
+    loss: playerLoss
   }
 }
 
@@ -35,7 +48,6 @@ export default function SpriteAvatar({
   const safeSize = Number.isFinite(size) && size > 0 ? size : 168
   const safeFps = Number.isFinite(fps) && fps > 0 ? fps : 8
   const frameDurationMs = Math.max(80, Math.round(1000 / safeFps))
-  const sheetWidth = safeSize * FRAME_COUNT
   const sheet = getSpriteSheet(type, state)
   const [frameIndex, setFrameIndex] = useState(0)
 
@@ -53,6 +65,15 @@ export default function SpriteAvatar({
     }
   }, [frameDurationMs, sheet])
 
+  const frameColumn = frameIndex % GRID_COLUMNS
+  const frameRow = Math.floor(frameIndex / GRID_COLUMNS)
+  const backgroundPositionX = GRID_COLUMNS > 1
+    ? `${(frameColumn / (GRID_COLUMNS - 1)) * 100}%`
+    : '0%'
+  const backgroundPositionY = GRID_ROWS > 1
+    ? `${(frameRow / (GRID_ROWS - 1)) * 100}%`
+    : '0%'
+
   return (
     <div
       className={`sprite-avatar ${isTurn ? 'sprite-avatar-turn' : ''} ${className}`.trim()}
@@ -62,17 +83,16 @@ export default function SpriteAvatar({
         height: `${safeSize}px`
       }}
     >
-      <img
-        alt=''
+      <div
         aria-hidden='true'
         className='sprite-avatar-sheet'
-        draggable='false'
-        src={sheet}
         style={{
-          width: `${sheetWidth}px`,
-          height: `${safeSize}px`,
-          maxWidth: 'none',
-          transform: `translateX(${-frameIndex * safeSize}px)`
+          width: '100%',
+          height: '100%',
+          backgroundImage: `url(${sheet})`,
+          backgroundRepeat: 'no-repeat',
+          backgroundSize: `${GRID_COLUMNS * 100}% ${GRID_ROWS * 100}%`,
+          backgroundPosition: `${backgroundPositionX} ${backgroundPositionY}`
         }}
       />
     </div>

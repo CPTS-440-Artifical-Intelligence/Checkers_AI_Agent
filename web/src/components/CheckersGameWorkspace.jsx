@@ -32,6 +32,18 @@ export default function CheckersGameWorkspace() {
         </div>
 
         <div className='flex w-full max-w-[44rem] flex-col items-center gap-3'>
+
+          <div className='grid w-full grid-cols-2 gap-3 sm:gap-5 lg:hidden'>
+            <BlackTeamAvatar
+              stats={blackTeamStats}
+              isActiveTurn={activeTurn === 'black'}
+            />
+            <PlayerTeamAvatar
+              stats={redTeamStats}
+              isActiveTurn={activeTurn === 'red'}
+            />
+          </div>
+          
           <Board
             pieces={pieces}
             turn={turn}
@@ -50,17 +62,6 @@ export default function CheckersGameWorkspace() {
             message={statusMessage}
             isError={hasStatusError}
           />
-
-          <div className='grid w-full grid-cols-2 gap-3 sm:gap-5 lg:hidden'>
-            <BlackTeamAvatar
-              stats={blackTeamStats}
-              isActiveTurn={activeTurn === 'black'}
-            />
-            <PlayerTeamAvatar
-              stats={redTeamStats}
-              isActiveTurn={activeTurn === 'red'}
-            />
-          </div>
         </div>
 
         <div className='hidden w-[12rem] shrink-0 lg:flex xl:w-[15rem] 2xl:w-[17rem]'>

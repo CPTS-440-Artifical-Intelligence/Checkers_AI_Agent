@@ -51,7 +51,8 @@ export default function BlackTeamAvatar({
   avatarState,
   avatarSize = 168,
   avatarFps = 8,
-  avatarOffsetY = 35
+  avatarOffsetY = 30,
+  avatarTrimTop = 60
 }) {
   const defaultState = avatarState ?? (isActiveTurn ? 'thinking' : 'idle')
   const resolvedState = useTemporaryAvatarState(defaultState)
@@ -66,6 +67,7 @@ export default function BlackTeamAvatar({
       toneClasses='border-slate-800/55 text-slate-900/80'
       activeClasses='border-slate-900 text-slate-950 ring-amber-700/55'
       avatarOffsetY={avatarOffsetY}
+      avatarTrimTop={avatarTrimTop}
       avatar={(
         <SpriteAvatar
           type='ai'

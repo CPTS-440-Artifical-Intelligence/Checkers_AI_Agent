@@ -7,9 +7,16 @@ export default function TeamAvatarSlot({
   toneClasses = '',
   activeClasses = '',
   avatar = null,
-  avatarOffsetY = 0
+  avatarOffsetY = 0,
+  avatarTrimTop = 0
 }) {
-  const hasAvatarOffset = Number.isFinite(avatarOffsetY) && avatarOffsetY !== 0
+  const safeAvatarOffsetY = Number.isFinite(avatarOffsetY) ? avatarOffsetY : 0
+  const safeAvatarTrimTop = Number.isFinite(avatarTrimTop) && avatarTrimTop > 0
+    ? avatarTrimTop
+    : 0
+  const avatarTranslateY = safeAvatarOffsetY - safeAvatarTrimTop
+  const hasAvatarTransform = avatarTranslateY !== 0
+  const hasAvatarTrim = safeAvatarTrimTop > 0
 
   return (
     <aside className={`w-full ${className}`.trim()} aria-label={ariaLabel}>
@@ -18,10 +25,11 @@ export default function TeamAvatarSlot({
           className={`grid aspect-square w-full place-items-center overflow-hidden rounded-[1.75rem] text-[0.68rem] uppercase tracking-[0.2em] ${
             isActiveTurn ? activeClasses : toneClasses
           }`}
+          style={hasAvatarTrim ? { marginBottom: `-${safeAvatarTrimTop}px` } : undefined}
         >
           <div
             className='grid size-full place-items-center'
-            style={hasAvatarOffset ? { transform: `translateY(${avatarOffsetY}px)` } : undefined}
+            style={hasAvatarTransform ? { transform: `translateY(${avatarTranslateY}px)` } : undefined}
           >
             {avatar ?? <span className='font-mono'>Avatar / Animation</span>}
           </div>

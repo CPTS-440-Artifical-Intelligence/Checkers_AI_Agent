@@ -19,7 +19,7 @@ export default function TeamAvatarSlot({
           {avatar ?? <span className='font-mono'>Avatar / Animation</span>}
         </div>
 
-        <p className='mt-4 font-serif text-xl font-bold tracking-wide'>
+        <p className='font-serif text-xl font-bold tracking-wide'>
           {roleLabel}
         </p>
 

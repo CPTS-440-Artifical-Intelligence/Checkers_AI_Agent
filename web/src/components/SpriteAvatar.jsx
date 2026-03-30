@@ -1,40 +1,96 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef } from 'react'
 
-import agentActive  from '../assets/avatars/agent-active.png'
-import agentIdle    from '../assets/avatars/agent-idle.png'
-import agentLoss    from '../assets/avatars/agent-loss.png'
-import agentThink   from '../assets/avatars/agent-think.png'
-import agentWin     from '../assets/avatars/agent-win.png'
-import playerActive from '../assets/avatars/player-active.png'
-import playerIdle   from '../assets/avatars/player-idle.png'
-import playerLoss   from '../assets/avatars/player-loss.png'
-import playerThink  from '../assets/avatars/player-think.png'
-import playerWin    from '../assets/avatars/player-win.png'
+import { getAvatarSprite } from '../avatarSpriteCatalog'
+import {
+  resolveSpriteDrawPlan,
+  useSpriteFrameIndex,
+  useSpriteSheetMetrics
+} from '../spriteSheetNormalizer'
 
-const GRID_COLUMNS = 6
-const GRID_ROWS = 6
-const FRAME_COUNT = GRID_COLUMNS * GRID_ROWS
+function NormalizedSpriteAvatar({
+  className,
+  isTurn,
+  safeFps,
+  safeSize,
+  sprite
+}) {
+  const metrics = useSpriteSheetMetrics(sprite)
+  const frameIndex = useSpriteFrameIndex({
+    fps: safeFps,
+    frameCount: sprite.frameCount
+  })
+  const canvasRef = useRef(null)
 
-const SPRITE_PATHS = {
-  ai: {
-    idle: agentIdle,
-    active: agentActive,
-    thinking: agentThink,
-    win: agentWin,
-    loss: agentLoss
-  },
-  human: {
-    idle: playerIdle,
-    active: playerActive,
-    thinking: playerThink,
-    win: playerWin,
-    loss: playerLoss
-  }
-}
+  useEffect(() => {
+    const canvas = canvasRef.current
 
-function getSpriteSheet(type, state) {
-  const byType = SPRITE_PATHS[type] ?? SPRITE_PATHS.ai
-  return byType[state] ?? byType.idle
+    if (!canvas) {
+      return
+    }
+
+    const context = canvas.getContext('2d')
+
+    if (!context) {
+      return
+    }
+
+    const devicePixelRatio = window.devicePixelRatio || 1
+    canvas.width = Math.max(Math.round(safeSize * devicePixelRatio), 1)
+    canvas.height = Math.max(Math.round(safeSize * devicePixelRatio), 1)
+
+    context.setTransform(1, 0, 0, 1, 0, 0)
+    context.clearRect(0, 0, canvas.width, canvas.height)
+
+    if (!metrics) {
+      return
+    }
+
+    const frameColumn = frameIndex % sprite.columns
+    const frameRow = Math.floor(frameIndex / sprite.columns)
+    const sourceX = frameColumn * metrics.frameWidth
+    const sourceY = frameRow * metrics.frameHeight
+    const drawPlan = resolveSpriteDrawPlan(metrics, sprite, safeSize)
+
+    context.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0)
+    context.imageSmoothingEnabled = true
+    context.clearRect(0, 0, safeSize, safeSize)
+    context.drawImage(
+      metrics.image,
+      sourceX,
+      sourceY,
+      metrics.frameWidth,
+      metrics.frameHeight,
+      drawPlan.x,
+      drawPlan.y,
+      drawPlan.destinationWidth,
+      drawPlan.destinationHeight
+    )
+  }, [frameIndex, metrics, safeSize, sprite])
+
+  return (
+    <div
+      className={[
+        'relative overflow-hidden rounded-full [transform:translateZ(0)]',
+        isTurn ? 'drop-shadow-[0_0_0.4rem_rgb(180_83_9_/_0.42)]' : '',
+        className
+      ].filter(Boolean).join(' ')}
+      aria-hidden='true'
+      style={{
+        width: `${safeSize}px`,
+        height: `${safeSize}px`
+      }}
+    >
+      <canvas
+        ref={canvasRef}
+        aria-hidden='true'
+        className='pointer-events-none block size-full'
+        style={{
+          width: `${safeSize}px`,
+          height: `${safeSize}px`
+        }}
+      />
+    </div>
+  )
 }
 
 export default function SpriteAvatar({
@@ -47,54 +103,16 @@ export default function SpriteAvatar({
 }) {
   const safeSize = Number.isFinite(size) && size > 0 ? size : 168
   const safeFps = Number.isFinite(fps) && fps > 0 ? fps : 8
-  const frameDurationMs = Math.max(80, Math.round(1000 / safeFps))
-  const sheet = getSpriteSheet(type, state)
-  const [frameIndex, setFrameIndex] = useState(0)
-
-  useEffect(() => {
-    setFrameIndex(0)
-  }, [sheet])
-
-  useEffect(() => {
-    const timerId = window.setInterval(() => {
-      setFrameIndex((current) => (current + 1) % FRAME_COUNT)
-    }, frameDurationMs)
-
-    return () => {
-      window.clearInterval(timerId)
-    }
-  }, [frameDurationMs, sheet])
-
-  const frameColumn = frameIndex % GRID_COLUMNS
-  const frameRow = Math.floor(frameIndex / GRID_COLUMNS)
-  const backgroundPositionX = GRID_COLUMNS > 1
-    ? `${(frameColumn / (GRID_COLUMNS - 1)) * 100}%`
-    : '0%'
-  const backgroundPositionY = GRID_ROWS > 1
-    ? `${(frameRow / (GRID_ROWS - 1)) * 100}%`
-    : '0%'
+  const sprite = getAvatarSprite(type, state)
 
   return (
-    <div
-      className={`sprite-avatar ${isTurn ? 'sprite-avatar-turn' : ''} ${className}`.trim()}
-      aria-hidden='true'
-      style={{
-        width: `${safeSize}px`,
-        height: `${safeSize}px`
-      }}
-    >
-      <div
-        aria-hidden='true'
-        className='sprite-avatar-sheet'
-        style={{
-          width: '100%',
-          height: '100%',
-          backgroundImage: `url(${sheet})`,
-          backgroundRepeat: 'no-repeat',
-          backgroundSize: `${GRID_COLUMNS * 100}% ${GRID_ROWS * 100}%`,
-          backgroundPosition: `${backgroundPositionX} ${backgroundPositionY}`
-        }}
-      />
-    </div>
+    <NormalizedSpriteAvatar
+      key={sprite.id}
+      className={className}
+      isTurn={isTurn}
+      safeFps={safeFps}
+      safeSize={safeSize}
+      sprite={sprite}
+    />
   )
 }

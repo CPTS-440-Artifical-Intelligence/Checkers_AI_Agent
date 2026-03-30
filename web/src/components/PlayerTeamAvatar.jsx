@@ -59,7 +59,7 @@ export default function PlayerTeamAvatar({
     <TeamAvatarSlot
       ariaLabel='Player team avatar panel'
       className={`text-rose-950 ${className}`.trim()}
-      roleLabel='Human Player'
+      roleLabel='Human'
       stats={stats}
       isActiveTurn={isActiveTurn}
       toneClasses='border-rose-900/45 text-rose-950/80'

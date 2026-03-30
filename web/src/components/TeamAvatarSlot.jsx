@@ -6,17 +6,25 @@ export default function TeamAvatarSlot({
   isActiveTurn = false,
   toneClasses = '',
   activeClasses = '',
-  avatar = null
+  avatar = null,
+  avatarOffsetY = 0
 }) {
+  const hasAvatarOffset = Number.isFinite(avatarOffsetY) && avatarOffsetY !== 0
+
   return (
     <aside className={`w-full ${className}`.trim()} aria-label={ariaLabel}>
       <div className='mx-auto w-full max-w-[18rem] text-center'>
         <div
-          className={`grid aspect-square w-full place-items-center rounded-[1.75rem] text-[0.68rem] uppercase tracking-[0.2em] ${
+          className={`grid aspect-square w-full place-items-center overflow-hidden rounded-[1.75rem] text-[0.68rem] uppercase tracking-[0.2em] ${
             isActiveTurn ? activeClasses : toneClasses
           }`}
         >
-          {avatar ?? <span className='font-mono'>Avatar / Animation</span>}
+          <div
+            className='grid size-full place-items-center'
+            style={hasAvatarOffset ? { transform: `translateY(${avatarOffsetY}px)` } : undefined}
+          >
+            {avatar ?? <span className='font-mono'>Avatar / Animation</span>}
+          </div>
         </div>
 
         <p className='font-serif text-xl font-bold tracking-wide'>

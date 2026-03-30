@@ -50,7 +50,8 @@ export default function PlayerTeamAvatar({
   isActiveTurn = false,
   avatarState,
   avatarSize = 168,
-  avatarFps = 8
+  avatarFps = 8,
+  avatarOffsetY = 35
 }) {
   const defaultState = avatarState ?? (isActiveTurn ? 'thinking' : 'idle')
   const resolvedState = useTemporaryAvatarState(defaultState)
@@ -64,6 +65,7 @@ export default function PlayerTeamAvatar({
       isActiveTurn={isActiveTurn}
       toneClasses='border-rose-900/45 text-rose-950/80'
       activeClasses='border-rose-900 text-rose-950 ring-amber-800/50'
+      avatarOffsetY={avatarOffsetY}
       avatar={(
         <SpriteAvatar
           type='human'

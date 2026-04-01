@@ -1,0 +1,11 @@
+
+# python virtual environment
+./venv/**
+
+python/pytest caches
+./pytest_cache/**
+./__test__/__pycache__/**
+./__pycache__/**
+
+# testing logs
+./logs/**

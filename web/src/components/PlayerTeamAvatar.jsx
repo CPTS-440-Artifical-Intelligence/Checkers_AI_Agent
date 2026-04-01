@@ -49,7 +49,7 @@ export default function PlayerTeamAvatar({
   stats = [],
   isActiveTurn = false,
   avatarState,
-  avatarSize = 168,
+  avatarSize = 178,
   avatarFps = 8,
   avatarOffsetY = 30,
   avatarTrimTop = 60
@@ -62,6 +62,7 @@ export default function PlayerTeamAvatar({
       ariaLabel='Player team avatar panel'
       className={`text-rose-950 ${className}`.trim()}
       roleLabel='Human'
+      statusBadge={resolvedState}
       stats={stats}
       isActiveTurn={isActiveTurn}
       toneClasses='border-rose-900/45 text-rose-950/80'

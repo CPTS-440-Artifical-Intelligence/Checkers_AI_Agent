@@ -62,6 +62,7 @@ export default function BlackTeamAvatar({
       ariaLabel='Black team avatar panel'
       className={`text-slate-900 ${className}`.trim()}
       roleLabel='AI Agent'
+      statusBadge={resolvedState}
       stats={stats}
       isActiveTurn={isActiveTurn}
       toneClasses='border-slate-800/55 text-slate-900/80'

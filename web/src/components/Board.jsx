@@ -22,7 +22,7 @@ export default function Board({
   onSelectSquare
 }) {
   return (
-    <div className='relative aspect-square w-[min(90vw,calc(100vh-16rem))] max-w-[44rem]'>
+    <div className='relative aspect-square w-[min(90vw,calc(100vh-16rem))] max-w-[44rem] lg:w-[var(--workspace-board-size)] lg:max-w-none'>
       <BoardFrame geometry={boardGeometry} playAreaStyle={playAreaStyle} />
 
       <TurnGlowLayer

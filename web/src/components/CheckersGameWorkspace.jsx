@@ -21,11 +21,23 @@ export default function CheckersGameWorkspace() {
     onSelectSquare
   } = useCheckersGame()
 
+  const workspaceStyle = {
+    '--workspace-panel-aspect': 18 / 23
+  }
+
   return (
     <section className='w-full px-2'>
-      <div className='mx-auto flex w-full items-start justify-center gap-3 xl:gap-5'>
-        <div className='hidden w-[12rem] shrink-0 lg:flex xl:w-[15rem] 2xl:w-[17rem]'>
+      <div
+        className='mx-auto flex w-full items-start justify-center gap-3 lg:[--workspace-gap:0.75rem] xl:gap-5 xl:[--workspace-gap:1.25rem]'
+        style={{
+          ...workspaceStyle,
+          '--workspace-board-size': 'min(44rem, calc(100vh - 16rem), calc((100vw - 3rem - (var(--workspace-gap) * 2)) / (1 + (2 * var(--workspace-panel-aspect)))))',
+          '--workspace-panel-height': 'calc(var(--workspace-board-size) * 0.92)'
+        }}
+      >
+        <div className='hidden shrink-0 lg:flex lg:h-[var(--workspace-panel-height)] lg:w-[calc(var(--workspace-board-size)*var(--workspace-panel-aspect))]'>
           <BlackTeamAvatar
+            className='lg:h-full'
             stats={blackTeamStats}
             isActiveTurn={activeTurn === 'black'}
           />
@@ -64,8 +76,9 @@ export default function CheckersGameWorkspace() {
           />
         </div>
 
-        <div className='hidden w-[12rem] shrink-0 lg:flex xl:w-[15rem] 2xl:w-[17rem]'>
+        <div className='hidden shrink-0 lg:flex lg:h-[var(--workspace-panel-height)] lg:w-[calc(var(--workspace-board-size)*var(--workspace-panel-aspect))]'>
           <PlayerTeamAvatar
+            className='lg:h-full'
             stats={redTeamStats}
             isActiveTurn={activeTurn === 'red'}
           />

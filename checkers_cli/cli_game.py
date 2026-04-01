@@ -1,4 +1,4 @@
-from checkers_board import BLACK_MAN, Board, Move, WHITE_MAN
+from checkers_engine.checkers_board import BLACK_MAN, Board, Move, WHITE_MAN
 
 
 def print_header() -> None:

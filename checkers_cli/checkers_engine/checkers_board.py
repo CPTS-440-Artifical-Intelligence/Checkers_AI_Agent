@@ -76,6 +76,10 @@ class Board:
         return squares
 
     @staticmethod
+    def is_dark_square_empty(piece: int) -> bool:
+        return piece == EMPTY;
+
+    @staticmethod
     def is_black_piece(piece: int) -> bool:
         return piece > 0
 

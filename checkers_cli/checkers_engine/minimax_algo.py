@@ -1,5 +1,7 @@
-from Checkerboard_Mapping import MappedCheckerBoard;
 import math
+
+from checkerboard_mapping import MappedCheckerBoard;
+
 #
 # Minimax using the mapping of 
 #

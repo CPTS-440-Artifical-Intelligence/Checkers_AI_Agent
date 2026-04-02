@@ -2,10 +2,11 @@
 # python virtual environment
 venv/**
 
-python/pytest caches
+# python/pytest caches
 pytest_cache/**
 __test__/__pycache__/**
 __pycache__/**
+checkers_engine/__pycache__/**
 
 # testing logs
 logs/**

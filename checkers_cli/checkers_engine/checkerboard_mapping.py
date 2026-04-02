@@ -1,5 +1,4 @@
-from checkers_board import Board, EMPTY as BOARD_EMPTY, BLACK_MAN as BOARD_BLACK_MAN, WHITE_MAN as BOARD_WHITE_MAN, BLACK_KING as BOARD_BLACK_KING, WHITE_KING as BOARD_WHITE_KING;
-
+from checkers_engine.checkers_board import Board, Move, EMPTY as BOARD_EMPTY, BLACK_MAN as BOARD_BLACK_MAN, WHITE_MAN as BOARD_WHITE_MAN, BLACK_KING as BOARD_BLACK_KING, WHITE_KING as BOARD_WHITE_KING;
 
 #
 # Checkers Mapped Board State Representation
@@ -79,14 +78,22 @@ class MappedCheckerBoard:
     # Generate each state from data structure acting as a particular side after converting mapped into original state, then convert original states generated into mapped counterpart and use mapped signature to remove similar states and return those somewhat unique states
     @staticmethod
     def generateAllPossibleNextMappedBoardStates(mapped_checker_board: MappedCheckerBoard, is_red_turn: bool) -> list[MappedCheckerBoard]:
-        return null;
+        mapped_board_states = set();
+        
+        board: Board = MappedCheckerBoard.generateCheckerBoardFromMapping(mapped_checker_board, not is_red_turn);
+        moves : list[Move] = board.get_legal_moves();
+        for move in moves:
+            new_board: Board = board.apply_move(move);
+            new_mapped_board: MappedCheckerBoard = MappedCheckerBoard.generateMappingFromCheckerBoard(new_board);
+            mapped_board_states.add(new_mapped_board);
+        return list(mapped_board_states);
 
     def __init__(self, red_checkers: int, black_checkers: int, king_checkers: int):
         self.__red_checkers = red_checkers; # red checkers positions
         self.__black_checkers = black_checkers; # black checkers positions
         self.__king_checkers = king_checkers; # subset of position of red_checkers and black_checkers
-        self.__total_red_mans_distance_to_king = self.__GetTotalDistanceToBeKing(self.getRedManCheckers(), False); # O(d)
-        self.__total_black_mans_distance_to_king = self.__GetTotalDistanceToBeKing(self.getBlackManCheckers(), True); # O(d)
+        self.__total_red_mans_distance_to_king = self.__GetTotalDistanceToBeKing(self.getRedManCheckers(), False); 
+        self.__total_black_mans_distance_to_king = self.__GetTotalDistanceToBeKing(self.getBlackManCheckers(), True);
     
     @staticmethod
     def __GetTotalDistanceToBeKing(man_checkers: int, is_black_side: bool) -> int: # O(d)
@@ -104,7 +111,21 @@ class MappedCheckerBoard:
                     acccumulated_distance += (MappedCheckerBoard.CHECKER_BOARD_SIZE - 1) - (i // 3); 
 
         return acccumulated_distance;
-      
+    
+    def __getCheckersInRow(self) -> tuple[int, ...]:
+        
+        # negative is black, positive is red
+        checkers_in_row = list[int]();
+        
+        for i in range(MappedCheckerBoard.CHECKER_BOARD_SIZE, 0, -1):
+            rank_checker = 0;
+            for columns_offset_in_rank in range(0, MappedCheckerBoard.CHECKER_BOARD_DARK_SQUARES_PER_RANK):
+                rank_checker = rank_checker | pow(2, ((i * MappedCheckerBoard.CHECKER_BOARD_DARK_SQUARES_PER_RANK) - 1) - columns_offset_in_rank);
+        
+            checkers_in_row.append((rank_checker & self.getRedCheckers()).bit_count() - (rank_checker & self.getBlackCheckers()).bit_count());
+
+        return tuple(checkers_in_row);
+    
     #
     # All Checkers 
     #
@@ -184,8 +205,7 @@ class MappedCheckerBoard:
             self.getRedManCount(),
             self.getBlackKingCount(),
             self.getBlackManCount(),
-            self.getTotalRedMansDistanceToKing(),
-            self.getTotalBlackMansDistanceToKing(),
+            self.__getCheckersInRow()
         );
 
     # true when state is similar to another state
@@ -193,6 +213,9 @@ class MappedCheckerBoard:
         if isinstance(other, MappedCheckerBoard):
             return self.getStateSignature() == other.getStateSignature();
         return False
+    
+    def __hash__(self):
+        return hash(self.getStateSignature());
     
     # String Representation of Mapped data
     def __repr__(self):
@@ -211,15 +234,3 @@ class MappedCheckerBoard:
     {self.getBlackCheckerCount()}=Checker(s), {self.getBlackManCount()}=Man(s), {self.getBlackKingCount()}=King(s)
     {self.__total_black_mans_distance_to_king}=Black_Mans_Distance_To_King
     """;
-
-# -- Testing ---
-# checkerBoard = MappedCheckerBoard(0b_000_000_000_100_11_111, 0b_111_110_010_000_000_000, 0b_00_0000_0000_0000_0000);
-# print(checkerBoard);
-
-
-
-# board = MappedCheckerBoard.generateCheckerBoardFromMapping(MappedCheckerBoard(0b_000_000_000_100_11_111, 0b_111_110_010_000_000_000, 0b_000_000_000_000_000_000), True);
-
-# print(board);
-
-# print(MappedCheckerBoard.generateMappingFromCheckerBoard(board));

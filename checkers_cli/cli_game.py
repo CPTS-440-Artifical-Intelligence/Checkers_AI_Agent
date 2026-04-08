@@ -1,4 +1,6 @@
 from checkers_engine.checkers_board import BLACK_MAN, Board, Move, WHITE_MAN
+from checkers_engine.checkerboard_mapping import MappedCheckerBoard
+from checkers_engine.minimax_algo import CheckersMinimax
 
 
 def print_header() -> None:
@@ -55,11 +57,22 @@ def main() -> None:
     print_help()
     print_board(board)
 
+    ai_side = WHITE_MAN
+    is_maximizing_red_player = (ai_side == WHITE_MAN)
+
     while True:
         winner = board.winner()
         if winner is not None:
             print(f"Game over. Winner: {player_name(winner)}")
             break
+
+        if board.turn == ai_side:
+            print("AI is thinking...")
+            mapped_result, depth_reached, nodes_visited, score = CheckersMinimax.heuristic_alpha_beta_minimax(5, board, is_maximizing_red_player)
+            board = MappedCheckerBoard.generateCheckerBoardFromMapping(mapped_result, board.turn == WHITE_MAN)
+            print(f"AI moved. (depth={depth_reached}, nodes={nodes_visited}, score={score:.4f})\n")
+            print_board(board)
+            continue
 
         moves = board.get_legal_moves()
         command = input(f"{player_name(board.turn)} to move > ").strip()

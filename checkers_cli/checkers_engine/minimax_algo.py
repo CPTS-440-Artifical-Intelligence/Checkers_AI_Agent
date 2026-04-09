@@ -33,7 +33,7 @@ class CheckersMinimax:
 
     @staticmethod
     def __is_cutoff(mapped_board_state: MappedCheckerBoard, depth_limit: int, current_depth: int) -> bool:
-        print("RED", mapped_board_state.getRedCheckerCount(), "BLACK", mapped_board_state.getBlackCheckerCount(), "DEPTH", current_depth, "LIMIT", depth_limit, "TRUE VALUE", mapped_board_state.getRedCheckerCount() == 0 or mapped_board_state.getBlackCheckerCount() == 0 or depth_limit == current_depth);
+        # print("RED", mapped_board_state.getRedCheckerCount(), "BLACK", mapped_board_state.getBlackCheckerCount(), "DEPTH", current_depth, "LIMIT", depth_limit, "TRUE VALUE", mapped_board_state.getRedCheckerCount() == 0 or mapped_board_state.getBlackCheckerCount() == 0 or depth_limit == current_depth);
         return mapped_board_state.getRedCheckerCount() == 0 or mapped_board_state.getBlackCheckerCount() == 0 or depth_limit == current_depth;
 
     @staticmethod

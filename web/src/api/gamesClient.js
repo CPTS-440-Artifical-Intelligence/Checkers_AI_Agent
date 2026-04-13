@@ -39,6 +39,14 @@ async function requestJson(path, { method = 'GET', body, signal } = {}) {
     throw new ApiError(message, response.status, code)
   }
 
+  if (import.meta.env.DEV && path.startsWith('/api/games')) {
+    console.log('[gamesClient] game state response', {
+      method,
+      path,
+      payload
+    })
+  }
+
   return payload
 }
 
@@ -51,6 +59,14 @@ export function getGame(gameId, options = {}) {
 }
 
 export function applyMove(gameId, path, options = {}) {
+  if (import.meta.env.DEV) {
+    console.log('[gamesClient] move request payload', {
+      method: 'POST',
+      path: `/api/games/${gameId}/move`,
+      body: { path }
+    })
+  }
+
   return requestJson(`/api/games/${gameId}/move`, {
     method: 'POST',
     body: { path },

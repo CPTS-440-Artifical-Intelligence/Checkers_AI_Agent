@@ -1,4 +1,4 @@
-const BOARD_SIZE = 8
+const BOARD_SIZE = 6
 
 export function coordToSquare(row, col) {
   const file = String.fromCharCode(97 + col)

@@ -2,7 +2,7 @@ export class BoardGeometry {
   #size
   #cells
 
-  constructor(size = 8) {
+  constructor(size = 6) {
     this.#size = size
     this.#cells = this.#buildCells()
   }

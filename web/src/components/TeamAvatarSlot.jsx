@@ -27,9 +27,9 @@ function formatStatusBadgeLabel(statusBadge) {
   const statusLabels = {
     active: 'Active',
     idle: 'Idle',
-    loss: 'Losing',
+    loss: 'Lost',
     thinking: 'Thinking',
-    win: 'Winning'
+    win: 'Won'
   }
 
   return statusLabels[normalizedStatus] ?? statusBadge

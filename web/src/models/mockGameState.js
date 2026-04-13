@@ -60,6 +60,10 @@ export function createMockGameState() {
   return {
     gameId: 'demo-checkers',
     turn: 'red',
+    status: 'in_progress',
+    winner: null,
+    mustCapture: false,
+    lastMove: null,
     pieces: defaultSpawner.createPieces()
   }
 }

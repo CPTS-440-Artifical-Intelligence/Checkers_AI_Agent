@@ -8,15 +8,17 @@ import useCheckersGame from '../hooks/useCheckersGame'
 export default function CheckersGameWorkspace() {
   const {
     activeTurn,
+    aiAvatarState,
     blackTeamStats,
     hoveredCheckerType,
     hoveredSquare,
     isAiThinking,
+    isGameFinished,
     pieces,
+    playerAvatarState,
     redTeamStats,
     selectedPieceId,
     statusMessage,
-    turn,
     hasStatusError,
     onHoverSquare,
     onSelectSquare
@@ -37,12 +39,13 @@ export default function CheckersGameWorkspace() {
         }}
       >
         <div className='hidden shrink-0 lg:flex lg:h-[var(--workspace-panel-height)] lg:w-[calc(var(--workspace-board-size)*var(--workspace-panel-aspect))]'>
-          <BlackTeamAvatar
-            className='lg:h-full'
-            stats={blackTeamStats}
-            isActiveTurn={activeTurn === 'black'}
-            isThinking={isAiThinking}
-          />
+            <BlackTeamAvatar
+              className='lg:h-full'
+              stats={blackTeamStats}
+              isActiveTurn={activeTurn === 'black'}
+              isThinking={isAiThinking}
+              avatarState={aiAvatarState}
+            />
         </div>
 
         <div className='flex w-full max-w-[44rem] flex-col items-center gap-3'>
@@ -52,21 +55,24 @@ export default function CheckersGameWorkspace() {
               stats={blackTeamStats}
               isActiveTurn={activeTurn === 'black'}
               isThinking={isAiThinking}
+              avatarState={aiAvatarState}
             />
             <PlayerTeamAvatar
               stats={redTeamStats}
               isActiveTurn={activeTurn === 'red'}
+              avatarState={playerAvatarState}
             />
           </div>
           
           <Board
             pieces={pieces}
-            turn={turn}
+            turn={activeTurn}
             hoveredSquare={hoveredSquare}
             hoveredCheckerType={hoveredCheckerType}
             selectedPieceId={selectedPieceId}
             onHoverSquare={onHoverSquare}
             onSelectSquare={onSelectSquare}
+            isInteractive={!isGameFinished}
           />
 
           <BoardInteractionStats
@@ -84,6 +90,7 @@ export default function CheckersGameWorkspace() {
             className='lg:h-full'
             stats={redTeamStats}
             isActiveTurn={activeTurn === 'red'}
+            avatarState={playerAvatarState}
           />
         </div>
       </div>

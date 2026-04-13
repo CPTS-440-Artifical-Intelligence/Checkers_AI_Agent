@@ -19,7 +19,8 @@ export default function Board({
   hoveredCheckerType,
   selectedPieceId,
   onHoverSquare,
-  onSelectSquare
+  onSelectSquare,
+  isInteractive = true
 }) {
   return (
     <div className='relative aspect-square w-[min(90vw,calc(100vh-16rem))] max-w-[44rem] lg:w-[var(--workspace-board-size)] lg:max-w-none'>
@@ -47,6 +48,7 @@ export default function Board({
         onHoverSquare={onHoverSquare}
         onSelectSquare={onSelectSquare}
         playAreaStyle={playAreaStyle}
+        isInteractive={isInteractive}
       />
     </div>
   )

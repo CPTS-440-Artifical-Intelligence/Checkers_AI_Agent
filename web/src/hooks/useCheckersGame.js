@@ -21,6 +21,12 @@ function normalizeTeamColor(value) {
   return null
 }
 
+function formatWinnerMessage(winner) {
+  if (winner === 'red') return 'Game over: You win.'
+  if (winner === 'black') return 'Game over: AI wins.'
+  return 'Game over.'
+}
+
 function turnSelectionError(turn) {
   return `It's ${turn}'s turn. Select a ${turn} piece.`
 }
@@ -111,12 +117,30 @@ export default function useCheckersGame() {
     return gameState.pieces.find((piece) => piece.id === selectedPieceId) ?? null
   }, [gameState.pieces, selectedPieceId])
 
-  const activeTurn = normalizeTeamColor(gameState.turn)
+  const isGameFinished = gameState.status === 'finished'
+  const winner = normalizeTeamColor(gameState.winner)
+  const activeTurn = isGameFinished ? null : normalizeTeamColor(gameState.turn)
   const selectedSquare = selectedPiece?.square ?? null
   const hoveredCheckerType = hoveredSquare ? (pieceColorBySquare[hoveredSquare] ?? null) : null
   const statusMessage = errorMessage
+    ?? (isGameFinished ? formatWinnerMessage(winner) : null)
     ?? (isAiThinking ? 'Waiting for AI move...' : null)
     ?? (isSyncing ? 'Syncing with API...' : null)
+
+  useEffect(() => {
+    if (!isGameFinished) return
+
+    setSelectedPieceId(null)
+    setHoveredSquare(null)
+    setIsAiThinking(false)
+  }, [isGameFinished])
+
+  const playerAvatarState = isGameFinished
+    ? (winner === 'red' ? 'win' : winner === 'black' ? 'loss' : 'idle')
+    : undefined
+  const aiAvatarState = isGameFinished
+    ? (winner === 'black' ? 'win' : winner === 'red' ? 'loss' : 'idle')
+    : undefined
 
   const blackTeamStats = useMemo(
     () => [{ label: 'Pieces', value: pieceCountByColor.black }],
@@ -128,6 +152,11 @@ export default function useCheckersGame() {
   )
 
   const handleSelectSquare = async (square) => {
+    if (isGameFinished) {
+      setSelectedPieceId(null)
+      return
+    }
+
     if (isAiThinking) {
       setSelectedPieceId(null)
       return
@@ -216,11 +245,14 @@ export default function useCheckersGame() {
 
   return {
     activeTurn,
+    aiAvatarState,
     blackTeamStats,
     hoveredCheckerType,
     hoveredSquare,
     isAiThinking,
+    isGameFinished,
     pieces: gameState.pieces,
+    playerAvatarState,
     redTeamStats,
     selectedPieceId,
     selectedSquare,

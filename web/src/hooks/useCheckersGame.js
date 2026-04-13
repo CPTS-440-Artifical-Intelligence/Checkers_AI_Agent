@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { createGame, applyAiMove, applyMove } from '../api/gamesClient'
+import { AI_PLAYER_CONFIG, getAiMinimumStateDuration } from '../config/aiPlayerConfig'
 import { squareToCoord, toUiGameState } from '../models/apiGameState'
 import { createMockGameState } from '../models/mockGameState'
 
@@ -22,6 +23,22 @@ function normalizeTeamColor(value) {
 
 function turnSelectionError(turn) {
   return `It's ${turn}'s turn. Select a ${turn} piece.`
+}
+
+function delay(ms) {
+  if (!Number.isFinite(ms) || ms <= 0) {
+    return Promise.resolve()
+  }
+
+  return new Promise((resolve) => {
+    window.setTimeout(resolve, ms)
+  })
+}
+
+async function waitForMinimumDuration(startedAt, minimumMs) {
+  const elapsedMs = performance.now() - startedAt
+  const remainingMs = minimumMs - elapsedMs
+  await delay(remainingMs)
 }
 
 export default function useCheckersGame() {
@@ -172,11 +189,18 @@ export default function useCheckersGame() {
 
       if (shouldRequestAiMove) {
         setIsAiThinking(true)
+        const aiThinkingStartedAt = performance.now()
 
         try {
           const aiMoved = await applyAiMove(gameState.gameId)
           const aiUiState = toUiGameState(aiMoved?.state)
           if (!aiUiState) throw new Error('AI move payload was empty.')
+
+          await waitForMinimumDuration(
+            aiThinkingStartedAt,
+            getAiMinimumStateDuration('thinking')
+          )
+          await delay(AI_PLAYER_CONFIG.request.revealMoveDelayMs)
           setGameState(aiUiState)
         } finally {
           setIsAiThinking(false)

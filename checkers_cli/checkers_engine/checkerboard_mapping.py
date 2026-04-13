@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from checkers_engine.checkers_board import Board, Move, EMPTY as BOARD_EMPTY, BLACK_MAN as BOARD_BLACK_MAN, WHITE_MAN as BOARD_WHITE_MAN, BLACK_KING as BOARD_BLACK_KING, WHITE_KING as BOARD_WHITE_KING;
 
 #

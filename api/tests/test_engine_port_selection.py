@@ -11,6 +11,7 @@ if str(SRC) not in sys.path:
     sys.path.insert(0, str(SRC))
 
 from api.engine.module_adapter import (  # noqa: E402
+    CheckersCliEngineAdapter,
     EngineAdapterConfigurationError,
     EngineModuleAdapter,
     build_engine_port,
@@ -32,6 +33,12 @@ class EnginePortSelectionTests(unittest.TestCase):
             os.environ.pop("CHECKERS_ENGINE_MODULE", None)
         else:
             os.environ["CHECKERS_ENGINE_MODULE"] = self._old_module
+
+    def test_default_module_returns_checkers_cli_adapter(self) -> None:
+        os.environ["CHECKERS_API_ENGINE_MODE"] = "external"
+        os.environ.pop("CHECKERS_ENGINE_MODULE", None)
+        engine = build_engine_port()
+        self.assertIsInstance(engine, CheckersCliEngineAdapter)
 
     def test_external_mode_returns_module_adapter(self) -> None:
         os.environ["CHECKERS_API_ENGINE_MODE"] = "external"

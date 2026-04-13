@@ -1,4 +1,4 @@
-import BoardIMG from '../assets/Board_6x6.png'
+import BoardIMG from '../assets/Board_6x6_Flipped.png'
 
 export default function BoardFrame({ geometry, playAreaStyle }) {
   return (

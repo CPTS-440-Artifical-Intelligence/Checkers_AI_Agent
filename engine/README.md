@@ -67,7 +67,7 @@ This mode exists to validate full wiring quickly and is intended to be replaced 
 ```
 
 Rules:
-- `board` must be 8x8
+- `board` must be 6x6
 - piece codes: `.`, `r`, `R`, `b`, `B`
 - `turn` is `"red"` or `"black"`
 - `status` is `"in_progress"` or `"finished"`

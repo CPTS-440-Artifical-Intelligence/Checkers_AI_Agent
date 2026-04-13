@@ -30,7 +30,7 @@ All board coordinates are:
 
 ### Piece Encoding
 
-The board is always an 8x8 array of single-character strings:
+The board is always a 6x6 array of single-character strings:
 
 - `.` empty
 - `r` red man

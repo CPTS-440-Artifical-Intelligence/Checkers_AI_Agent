@@ -48,13 +48,14 @@ export default function BlackTeamAvatar({
   className = '',
   stats = [],
   isActiveTurn = false,
+  isThinking = false,
   avatarState,
   avatarSize = 168,
   avatarFps = 8,
   avatarOffsetY = 30,
   avatarTrimTop = 60
 }) {
-  const defaultState = avatarState ?? (isActiveTurn ? 'thinking' : 'idle')
+  const defaultState = avatarState ?? (isThinking ? 'thinking' : isActiveTurn ? 'active' : 'idle')
   const resolvedState = useTemporaryAvatarState(defaultState)
 
   return (

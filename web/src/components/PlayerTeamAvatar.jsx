@@ -54,7 +54,7 @@ export default function PlayerTeamAvatar({
   avatarOffsetY = 30,
   avatarTrimTop = 60
 }) {
-  const defaultState = avatarState ?? (isActiveTurn ? 'thinking' : 'idle')
+  const defaultState = avatarState ?? (isActiveTurn ? 'active' : 'idle')
   const resolvedState = useTemporaryAvatarState(defaultState)
 
   return (

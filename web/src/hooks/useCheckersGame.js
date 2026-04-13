@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { createGame, applyMove } from '../api/gamesClient'
+import { createGame, applyAiMove, applyMove } from '../api/gamesClient'
 import { squareToCoord, toUiGameState } from '../models/apiGameState'
 import { createMockGameState } from '../models/mockGameState'
 
@@ -29,6 +29,7 @@ export default function useCheckersGame() {
   const [selectedPieceId, setSelectedPieceId] = useState(null)
   const [gameState, setGameState] = useState(() => createMockGameState())
   const [isSyncing, setIsSyncing] = useState(false)
+  const [isAiThinking, setIsAiThinking] = useState(false)
   const [errorMessage, setErrorMessage] = useState(null)
 
   useEffect(() => {
@@ -96,7 +97,9 @@ export default function useCheckersGame() {
   const activeTurn = normalizeTeamColor(gameState.turn)
   const selectedSquare = selectedPiece?.square ?? null
   const hoveredCheckerType = hoveredSquare ? (pieceColorBySquare[hoveredSquare] ?? null) : null
-  const statusMessage = errorMessage ?? (isSyncing ? 'Syncing with API...' : null)
+  const statusMessage = errorMessage
+    ?? (isAiThinking ? 'Waiting for AI move...' : null)
+    ?? (isSyncing ? 'Syncing with API...' : null)
 
   const blackTeamStats = useMemo(
     () => [{ label: 'Pieces', value: pieceCountByColor.black }],
@@ -108,6 +111,11 @@ export default function useCheckersGame() {
   )
 
   const handleSelectSquare = async (square) => {
+    if (isAiThinking) {
+      setSelectedPieceId(null)
+      return
+    }
+
     if (isSyncing) return
 
     const clickedPiece = pieceBySquare[square] ?? null
@@ -152,14 +160,32 @@ export default function useCheckersGame() {
 
     try {
       const moved = await applyMove(gameState.gameId, path)
-      const uiState = toUiGameState(moved)
-      if (!uiState) throw new Error('Game state payload was empty.')
+      const movedUiState = toUiGameState(moved)
+      if (!movedUiState) throw new Error('Game state payload was empty.')
 
-      setGameState(uiState)
+      setGameState(movedUiState)
       setSelectedPieceId(null)
+
+      const shouldRequestAiMove =
+        movedUiState.status === 'in_progress' &&
+        movedUiState.turn === 'black'
+
+      if (shouldRequestAiMove) {
+        setIsAiThinking(true)
+
+        try {
+          const aiMoved = await applyAiMove(gameState.gameId)
+          const aiUiState = toUiGameState(aiMoved?.state)
+          if (!aiUiState) throw new Error('AI move payload was empty.')
+          setGameState(aiUiState)
+        } finally {
+          setIsAiThinking(false)
+        }
+      }
     } catch (error) {
       setErrorMessage(toMessage(error, 'Failed to apply move via API.'))
     } finally {
+      setIsAiThinking(false)
       setIsSyncing(false)
     }
   }
@@ -169,6 +195,7 @@ export default function useCheckersGame() {
     blackTeamStats,
     hoveredCheckerType,
     hoveredSquare,
+    isAiThinking,
     pieces: gameState.pieces,
     redTeamStats,
     selectedPieceId,

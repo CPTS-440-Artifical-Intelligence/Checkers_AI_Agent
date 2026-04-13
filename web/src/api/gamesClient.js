@@ -73,3 +73,21 @@ export function applyMove(gameId, path, options = {}) {
     signal: options.signal
   })
 }
+
+export function applyAiMove(gameId, agent, options = {}) {
+  const body = agent ? { agent } : undefined
+
+  if (import.meta.env.DEV) {
+    console.log('[gamesClient] ai move request payload', {
+      method: 'POST',
+      path: `/api/games/${gameId}/ai-move`,
+      body
+    })
+  }
+
+  return requestJson(`/api/games/${gameId}/ai-move`, {
+    method: 'POST',
+    body,
+    signal: options.signal
+  })
+}

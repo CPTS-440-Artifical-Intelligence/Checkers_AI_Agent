@@ -11,6 +11,7 @@ export default function CheckersGameWorkspace() {
     blackTeamStats,
     hoveredCheckerType,
     hoveredSquare,
+    isAiThinking,
     pieces,
     redTeamStats,
     selectedPieceId,
@@ -40,6 +41,7 @@ export default function CheckersGameWorkspace() {
             className='lg:h-full'
             stats={blackTeamStats}
             isActiveTurn={activeTurn === 'black'}
+            isThinking={isAiThinking}
           />
         </div>
 
@@ -49,6 +51,7 @@ export default function CheckersGameWorkspace() {
             <BlackTeamAvatar
               stats={blackTeamStats}
               isActiveTurn={activeTurn === 'black'}
+              isThinking={isAiThinking}
             />
             <PlayerTeamAvatar
               stats={redTeamStats}

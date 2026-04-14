@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState } from 'react'
 import { createGame, applyAiMove, applyMove } from '../api/gamesClient'
 import { AI_PLAYER_CONFIG, getAiMinimumStateDuration } from '../config/aiPlayerConfig'
 import { squareToCoord, toUiGameState } from '../models/apiGameState'
-import { createMockGameState } from '../models/mockGameState'
 
 function toMessage(error, fallback) {
   if (error instanceof Error) return error.message
@@ -50,7 +49,7 @@ async function waitForMinimumDuration(startedAt, minimumMs) {
 export default function useCheckersGame() {
   const [hoveredSquare, setHoveredSquare] = useState(null)
   const [selectedPieceId, setSelectedPieceId] = useState(null)
-  const [gameState, setGameState] = useState(() => createMockGameState())
+  const [gameState, setGameState] = useState(null)
   const [isSyncing, setIsSyncing] = useState(false)
   const [isAiThinking, setIsAiThinking] = useState(false)
   const [errorMessage, setErrorMessage] = useState(null)
@@ -88,41 +87,46 @@ export default function useCheckersGame() {
     }
   }, [])
 
+  const pieces = useMemo(() => gameState?.pieces ?? [], [gameState?.pieces])
+
   const pieceCountByColor = useMemo(() => {
-    return gameState.pieces.reduce(
+    return pieces.reduce(
       (counts, piece) => {
         counts[piece.color] = (counts[piece.color] ?? 0) + 1
         return counts
       },
       { red: 0, black: 0 }
     )
-  }, [gameState.pieces])
+  }, [pieces])
 
   const pieceColorBySquare = useMemo(() => {
-    return gameState.pieces.reduce((mapping, piece) => {
+    return pieces.reduce((mapping, piece) => {
       mapping[piece.square] = piece.color ?? 'unknown'
       return mapping
     }, {})
-  }, [gameState.pieces])
+  }, [pieces])
 
   const pieceBySquare = useMemo(() => {
-    return gameState.pieces.reduce((mapping, piece) => {
+    return pieces.reduce((mapping, piece) => {
       mapping[piece.square] = piece
       return mapping
     }, {})
-  }, [gameState.pieces])
+  }, [pieces])
 
   const selectedPiece = useMemo(() => {
     if (!selectedPieceId) return null
-    return gameState.pieces.find((piece) => piece.id === selectedPieceId) ?? null
-  }, [gameState.pieces, selectedPieceId])
+    return pieces.find((piece) => piece.id === selectedPieceId) ?? null
+  }, [pieces, selectedPieceId])
 
-  const isGameFinished = gameState.status === 'finished'
-  const winner = normalizeTeamColor(gameState.winner)
-  const activeTurn = isGameFinished ? null : normalizeTeamColor(gameState.turn)
+  const hasActiveGame = Boolean(gameState?.gameId)
+  const isGameFinished = gameState?.status === 'finished'
+  const winner = normalizeTeamColor(gameState?.winner)
+  const activeTurn = isGameFinished ? null : normalizeTeamColor(gameState?.turn)
   const selectedSquare = selectedPiece?.square ?? null
   const hoveredCheckerType = hoveredSquare ? (pieceColorBySquare[hoveredSquare] ?? null) : null
+  const isBoardInteractive = hasActiveGame && !isGameFinished && !isSyncing && !isAiThinking
   const statusMessage = errorMessage
+    ?? (!hasActiveGame ? (isSyncing ? 'Starting new game...' : null) : null)
     ?? (isGameFinished ? formatWinnerMessage(winner) : null)
     ?? (isAiThinking ? 'Waiting for AI move...' : null)
     ?? (isSyncing ? 'Syncing with API...' : null)
@@ -152,6 +156,8 @@ export default function useCheckersGame() {
   )
 
   const handleSelectSquare = async (square) => {
+    if (!gameState) return
+
     if (isGameFinished) {
       setSelectedPieceId(null)
       return
@@ -204,8 +210,10 @@ export default function useCheckersGame() {
     setIsSyncing(true)
     setErrorMessage(null)
 
+    const { gameId } = gameState
+
     try {
-      const moved = await applyMove(gameState.gameId, path)
+      const moved = await applyMove(gameId, path)
       const movedUiState = toUiGameState(moved)
       if (!movedUiState) throw new Error('Game state payload was empty.')
 
@@ -221,7 +229,7 @@ export default function useCheckersGame() {
         const aiThinkingStartedAt = performance.now()
 
         try {
-          const aiMoved = await applyAiMove(gameState.gameId)
+          const aiMoved = await applyAiMove(gameId)
           const aiUiState = toUiGameState(aiMoved?.state)
           if (!aiUiState) throw new Error('AI move payload was empty.')
 
@@ -250,14 +258,15 @@ export default function useCheckersGame() {
     hoveredCheckerType,
     hoveredSquare,
     isAiThinking,
+    isBoardInteractive,
     isGameFinished,
-    pieces: gameState.pieces,
+    pieces,
     playerAvatarState,
     redTeamStats,
     selectedPieceId,
     selectedSquare,
     statusMessage,
-    turn: gameState.turn,
+    turn: gameState?.turn ?? null,
     hasStatusError: Boolean(errorMessage),
     onHoverSquare: setHoveredSquare,
     onSelectSquare: handleSelectSquare

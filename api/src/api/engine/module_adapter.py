@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import importlib
 import inspect
-import os
 import sys
 import time
 from pathlib import Path
@@ -441,22 +440,5 @@ class EngineModuleAdapter(EnginePort):
 
 
 def build_engine_port() -> EnginePort:
-    """
-    Build the engine port from either the merged CLI engine or an external module.
-
-    Required:
-    - CHECKERS_API_ENGINE_MODE=external (or unset)
-    - CHECKERS_ENGINE_MODULE=checkers_engine (default)
-    """
-    mode = os.getenv("CHECKERS_API_ENGINE_MODE", "external").strip().lower()
-    module_path = os.getenv("CHECKERS_ENGINE_MODULE", "checkers_engine").strip()
-
-    if mode not in {"", "external"}:
-        raise EngineAdapterConfigurationError(
-            "Invalid CHECKERS_API_ENGINE_MODE. Expected: external."
-        )
-
-    if module_path in {"checkers_engine", "checkers_cli.checkers_engine"}:
-        return CheckersCliEngineAdapter.from_repo_package()
-
-    return EngineModuleAdapter.from_module_path(module_path)
+    """Build the engine port from the merged CLI engine package."""
+    return CheckersCliEngineAdapter.from_repo_package()

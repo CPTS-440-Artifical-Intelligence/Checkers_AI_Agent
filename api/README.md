@@ -253,43 +253,11 @@ If Netlify proxies `/api/*` to Render, CORS is not required for normal frontend 
 
 ### Engine Requirements (What the API Expects)
 
-The API now provides a thin adapter (`api/src/api/engine/module_adapter.py`) that loads an engine module and maps it into the `EnginePort` interface.
-
-Engine mode:
-- `CHECKERS_API_ENGINE_MODE=external`
-- optional `CHECKERS_ENGINE_MODULE=engine.api_contract` (defaults to this path)
+The API uses the merged CLI engine in `checkers_cli/checkers_engine` through the adapter at `api/src/api/engine/module_adapter.py`.
 
 Deployment note:
-- Install the monorepo engine package during Render build (`pip install -e ../engine`).
-- If engine import fails, deployment should fail fast (no in-API fallback engine).
-
-Your teammates only need to implement the engine-side module at:
-- `engine/src/engine/api_contract.py`
-
-Expected engine call signatures:
-
-```python
-new_game(game_id: str) -> state
-get_legal_moves(state) -> list[path]
-apply_move(state, path) -> (new_state, move_result)
-choose_ai_move(state, config) -> (path, metrics)
-```
-
-Expected `move_result` shape:
-
-```json
-{
-  "path": [[5,0],[4,1]],
-  "captures": [],
-  "promoted": false
-}
-```
-
-Expected `metrics` keys:
-- `depth_reached`
-- `nodes_expanded`
-- `prunes`
-- `time_ms`
+- Keep the monorepo layout intact so `checkers_cli/` is available next to `api/`.
+- If the real engine import fails, deployment should fail fast.
 
 ## Implementation Architecture
 

@@ -1,25 +1,22 @@
 # Engine Team Roles
 
 This layout separates responsibilities by domain boundary, not by personal branch structure.
-Each captain owns one provider module and can swap in their implementation without changing API wiring.
+Each captain owns a gameplay area even though the app now runs through the real `checkers_cli/checkers_engine` path only.
 
 ## Role Map
 
 1. `Data Structure Of Board` (Captain: Jamil Staten)
-Path: `engine/src/engine/roles/board_state/provider.py`
 Scope:
 - canonical state shape and initialization
 - board representation helpers
 
 2. `Generating Checker Output States` (Captain: Matthew Covey)
-Path: `engine/src/engine/roles/move_generation/provider.py`
 Scope:
-- legal move generation for active side
+- legal move generation for the active side
 - capture-priority enforcement
-- successor state updates for selected paths (`apply_move`)
+- successor state updates for selected move paths
 
 3. `Minimax [Alpha/Beta] using A* Algorithm(s)` (Captain: Chandler Guthrie)
-Path: `engine/src/engine/roles/search/provider.py`
 Scope:
 - AI move choice policy
 - metrics reporting (`depth_reached`, `nodes_expanded`, `prunes`, `time_ms`)
@@ -27,16 +24,10 @@ Scope:
 4. `Attaching Everything Together` (Captain: Jack Underhill)
 Scope:
 - frontend/backend wiring and end-to-end integration workflow
-- API route orchestration at application layer
+- API route orchestration at the application layer
 
-## Workflow
+## Working Agreement
 
-1. Keep `engine/src/engine/api_contract.py` function signatures stable.
-2. Implement one role provider at a time.
-3. Remove `NotImplementedError` in the provider when ready.
-4. Runtime falls back to `engine/src/engine/baseline.py` until each provider is complete.
-
-## Template Wiring Mode
-
-Set `CHECKERS_ENGINE_TEMPLATE_MODE=1` to enable imported template behavior in role providers.
-This mode is for full-stack wiring tests and is meant to be replaced by real logic per role.
+1. Keep the public gameplay contract stable at the API boundary.
+2. Coordinate engine changes against the real `checkers_cli/checkers_engine` implementation.
+3. Treat the API responses as the source of truth for full-stack behavior.

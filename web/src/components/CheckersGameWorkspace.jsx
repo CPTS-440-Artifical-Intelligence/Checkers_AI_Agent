@@ -13,6 +13,7 @@ export default function CheckersGameWorkspace() {
     hoveredCheckerType,
     hoveredSquare,
     isAiThinking,
+    isBoardInteractive,
     isGameFinished,
     pieces,
     playerAvatarState,
@@ -72,7 +73,7 @@ export default function CheckersGameWorkspace() {
             selectedPieceId={selectedPieceId}
             onHoverSquare={onHoverSquare}
             onSelectSquare={onSelectSquare}
-            isInteractive={!isGameFinished}
+            isInteractive={isBoardInteractive && !isGameFinished}
           />
 
           <BoardInteractionStats

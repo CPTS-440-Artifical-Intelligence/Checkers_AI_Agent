@@ -9,11 +9,11 @@ Purpose: liveness check.
 Response: `{ "ok": true }`
 
 2. `POST /api/games`
-Purpose: create new game state.
+Purpose: create a new game state.
 Response: `GameStateResponse`
 
 3. `GET /api/games/{game_id}`
-Purpose: fetch current game state.
+Purpose: fetch the current game state.
 Response: `GameStateResponse`
 
 4. `POST /api/games/{game_id}/reset`
@@ -21,7 +21,7 @@ Purpose: reset an existing game.
 Response: `GameStateResponse`
 
 5. `GET /api/games/{game_id}/legal-moves`
-Purpose: fetch legal moves for current turn.
+Purpose: fetch legal moves for the current turn.
 Response: `LegalMovesResponse`
 
 6. `POST /api/games/{game_id}/move`
@@ -33,7 +33,7 @@ Request:
 Response: `GameStateResponse`
 
 7. `POST /api/games/{game_id}/ai-move`
-Purpose: ask engine for AI move and apply it.
+Purpose: ask the engine for an AI move and apply it.
 Request:
 ```json
 {
@@ -61,16 +61,11 @@ Standard API error body:
 }
 ```
 
-## Template Mode For Wiring Tests
+## Board Contract
 
-Enable:
+- Board size is `6x6`
+- Coordinates are `[row, col]`
+- Piece codes are `.`, `r`, `R`, `b`, `B`
+- Game state responses are the API source of truth for the frontend
 
-```bash
-set CHECKERS_API_ENGINE_MODE=external
-set CHECKERS_ENGINE_MODULE=engine.api_contract
-set CHECKERS_ENGINE_TEMPLATE_MODE=1
-```
-
-Behavior in this mode:
-- `POST /api/games` returns an imported template start state.
-- `POST /api/games/{game_id}/move` accepts template legal moves that relocate an active-side piece to any square.
+For the fuller API contract, examples, and deployment notes, see `api/README.md`.

@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import os
 import sys
 import unittest
 from pathlib import Path
@@ -21,11 +20,6 @@ from asgi_client import request  # noqa: E402
 
 class APIContractTests(unittest.TestCase):
     def setUp(self) -> None:
-        self._old_mode = os.environ.get("CHECKERS_API_ENGINE_MODE")
-        self._old_module = os.environ.get("CHECKERS_ENGINE_MODULE")
-        os.environ["CHECKERS_API_ENGINE_MODE"] = "external"
-        os.environ["CHECKERS_ENGINE_MODULE"] = "engine.api_contract"
-
         self.app = create_app()
         service = GameService(
             repository=InMemoryGameRepository(),
@@ -34,16 +28,6 @@ class APIContractTests(unittest.TestCase):
         self.app.dependency_overrides[get_game_service] = lambda: service
 
     def tearDown(self) -> None:
-        if self._old_mode is None:
-            os.environ.pop("CHECKERS_API_ENGINE_MODE", None)
-        else:
-            os.environ["CHECKERS_API_ENGINE_MODE"] = self._old_mode
-
-        if self._old_module is None:
-            os.environ.pop("CHECKERS_ENGINE_MODULE", None)
-        else:
-            os.environ["CHECKERS_ENGINE_MODULE"] = self._old_module
-
         self.app.dependency_overrides.clear()
 
     def _request(self, method: str, path: str, payload: Any | None = None) -> tuple[int, Any]:
@@ -68,8 +52,8 @@ class APIContractTests(unittest.TestCase):
         self.assertIsNone(data["winner"])
         self.assertFalse(data["must_capture"])
         self.assertIsNone(data["last_move"])
-        self.assertEqual(len(data["board"]), 8)
-        self.assertTrue(all(len(row) == 8 for row in data["board"]))
+        self.assertEqual(len(data["board"]), 6)
+        self.assertTrue(all(len(row) == 6 for row in data["board"]))
 
     def test_get_unknown_game_returns_404_error_shape(self) -> None:
         status, data = self._request("GET", "/api/games/unknown")

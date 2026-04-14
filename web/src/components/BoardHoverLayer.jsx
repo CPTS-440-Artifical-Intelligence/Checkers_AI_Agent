@@ -14,11 +14,12 @@ export default function BoardHoverLayer({
   checkerOverlaySizePercent,
   onHoverSquare,
   onSelectSquare,
-  playAreaStyle
+  playAreaStyle,
+  isInteractive = true
 }) {
   return (
     <div
-      className='absolute z-20 grid grid-cols-8 grid-rows-8'
+      className='absolute z-20 grid grid-cols-6 grid-rows-6'
       style={playAreaStyle}
       onMouseLeave={() => onHoverSquare(null)}
     >
@@ -33,12 +34,17 @@ export default function BoardHoverLayer({
             type='button'
             data-square={cell.square}
             aria-label={`Square ${cell.square}`}
-            onMouseEnter={() => onHoverSquare(cell.square)}
-            onClick={() => onSelectSquare(cell.square)}
-            className={`relative grid h-full w-full cursor-pointer place-items-center border border-transparent transition ${
+            disabled={!isInteractive}
+            onMouseEnter={() => {
+              if (isInteractive) onHoverSquare(cell.square)
+            }}
+            onClick={() => {
+              if (isInteractive) onSelectSquare(cell.square)
+            }}
+            className={`relative grid h-full w-full place-items-center border border-transparent transition ${
               shouldHighlightCell
                 ? 'bg-sky-300/35 ring-2 ring-inset ring-sky-800/70'
-                : 'hover:bg-sky-200/20'
+                : isInteractive ? 'cursor-pointer hover:bg-sky-200/20' : 'cursor-default'
             }`}
           >
             {shouldHighlightChecker ? (

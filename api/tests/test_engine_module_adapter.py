@@ -18,7 +18,7 @@ from api.engine.module_adapter import EngineModuleAdapter  # noqa: E402
 def _new_state(game_id: str) -> dict[str, Any]:
     return {
         "game_id": game_id,
-        "board": [["." for _ in range(8)] for _ in range(8)],
+        "board": [["." for _ in range(6)] for _ in range(6)],
         "turn": "red",
         "status": "in_progress",
         "winner": None,

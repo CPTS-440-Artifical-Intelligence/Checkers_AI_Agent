@@ -58,11 +58,10 @@ Important:
 
 `render.yaml` is now in repo root and defines the API service:
 - root directory: `api`
-- build: `pip install -e ../engine && pip install -e .`
+- build: `pip install -e .`
 - start: `uvicorn api.main:app --host 0.0.0.0 --port $PORT`
 
 For multi-instance support, keep:
-- `CHECKERS_API_ENGINE_MODE=external`
 - `CHECKERS_API_STATE_BACKEND=redis`
 - `CHECKERS_REDIS_URL=<your redis connection url>`
 - optional `CHECKERS_REDIS_GAME_TTL_S=86400`

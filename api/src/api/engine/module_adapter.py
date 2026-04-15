@@ -1,11 +1,9 @@
 from __future__ import annotations
 
 import importlib
-import inspect
 import sys
 import time
 from pathlib import Path
-from types import ModuleType
 from typing import Any
 
 from api.domain.models import AIMetrics, AgentConfig, GameStateData, LastMoveData, Path as MovePath
@@ -13,20 +11,7 @@ from api.engine.port import EnginePort
 
 
 class EngineAdapterConfigurationError(RuntimeError):
-    """Raised when an external engine module cannot satisfy the adapter contract."""
-
-
-# ---------------------------------------------------------------------------
-# Import and path helpers
-# ---------------------------------------------------------------------------
-def _ensure_repo_engine_path() -> None:
-    """Allow importing `engine.*` from local monorepo without extra path setup."""
-    repo_root = Path(__file__).resolve().parents[4]
-    local_engine_src = repo_root / "engine" / "src"
-    if local_engine_src.exists():
-        engine_src = str(local_engine_src)
-        if engine_src not in sys.path:
-            sys.path.insert(0, engine_src)
+    """Raised when engine adapter configuration or imports are invalid."""
 
 
 def _ensure_repo_checkers_cli_path() -> None:
@@ -375,69 +360,6 @@ class CheckersCliEngineAdapter(EnginePort):
     def _validate_grid_shape(self, board: list[list[str]]) -> None:
         if len(board) != self._size or any(len(row) != self._size for row in board):
             raise ValueError(f"Board must be a {self._size}x{self._size} grid.")
-
-
-class EngineModuleAdapter(EnginePort):
-    """Thin adapter from API service calls to an external engine module."""
-
-    def __init__(self, module: ModuleType) -> None:
-        self._module = module
-        self._new_game = self._resolve_callable("new_game", "new_game_state")
-        self._get_legal_moves = self._resolve_callable("get_legal_moves", "list_legal_moves")
-        self._apply_move = self._resolve_callable("apply_move")
-        self._choose_ai_move = self._resolve_callable("choose_ai_move")
-
-    @classmethod
-    def from_module_path(cls, module_path: str) -> EngineModuleAdapter:
-        _ensure_repo_engine_path()
-        module = importlib.import_module(module_path)
-        return cls(module)
-
-    def _resolve_callable(self, *names: str) -> Any:
-        for name in names:
-            candidate = getattr(self._module, name, None)
-            if callable(candidate):
-                return candidate
-        joined = ", ".join(names)
-        raise EngineAdapterConfigurationError(
-            f"Engine module '{self._module.__name__}' is missing callable(s): {joined}"
-        )
-
-    def new_game_state(self, game_id: str) -> GameStateData:
-        created = self._call_new_game(self._new_game, game_id)
-        return _to_state(game_id, created)
-
-    def list_legal_moves(self, state: GameStateData) -> list[MovePath]:
-        result = self._get_legal_moves(state.as_dict())
-        return _to_paths(result)
-
-    def apply_move(self, state: GameStateData, path: MovePath) -> tuple[GameStateData, LastMoveData]:
-        raw_result = self._apply_move(state.as_dict(), _path_to_payload(path))
-        if isinstance(raw_result, tuple) and len(raw_result) == 2:
-            raw_state, move_data = raw_result
-        else:
-            raw_state = raw_result
-            move_data = _default_move_data(path)
-        mapped_state = _to_state(state.game_id, raw_state)
-        mapped_last_move = _to_last_move(move_data, fallback_path=path)
-        mapped_state.last_move = mapped_last_move
-        return mapped_state, mapped_last_move
-
-    def choose_ai_move(self, state: GameStateData, config: AgentConfig) -> tuple[MovePath, AIMetrics]:
-        raw_result = self._choose_ai_move(state.as_dict(), _agent_config_to_payload(config))
-        if not isinstance(raw_result, tuple) or len(raw_result) != 2:
-            raise ValueError("choose_ai_move must return (path, metrics).")
-        raw_path, raw_metrics = raw_result
-        return _to_path(raw_path), _to_metrics(raw_metrics, depth_hint=config.max_depth)
-
-    def _call_new_game(self, func: Any, game_id: str) -> Any:
-        parameters = inspect.signature(func).parameters
-        if "game_id" in parameters:
-            return func(game_id=game_id)
-        if len(parameters) == 1:
-            return func(game_id)
-        return func()
-
 
 def build_engine_port() -> EnginePort:
     """Build the engine port from the merged CLI engine package."""

@@ -13,7 +13,10 @@ const playAreaStyle = {
 }
 
 export default function Board({
+  legalDestinationSquares,
   pieces,
+  selectableSquares,
+  selectedPathSquares,
   turn,
   hoveredSquare,
   hoveredCheckerType,
@@ -38,6 +41,7 @@ export default function Board({
         geometry={boardGeometry}
         playAreaStyle={playAreaStyle}
         selectedPieceId={selectedPieceId}
+        selectableSquares={selectableSquares}
       />
 
       <BoardHoverLayer
@@ -45,9 +49,12 @@ export default function Board({
         hoveredSquare={hoveredSquare}
         hoveredCheckerType={hoveredCheckerType}
         checkerOverlaySizePercent={CHECKER_SIZE_PERCENT}
+        legalDestinationSquares={legalDestinationSquares}
         onHoverSquare={onHoverSquare}
         onSelectSquare={onSelectSquare}
         playAreaStyle={playAreaStyle}
+        selectableSquares={selectableSquares}
+        selectedPathSquares={selectedPathSquares}
         isInteractive={isInteractive}
       />
     </div>

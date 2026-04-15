@@ -3,7 +3,7 @@
 ## API Contract
 
 This repo is split into:
-- `engine/` Pure Python game logic (board state, legal moves, apply move, AI agents)
+- `checkers_cli/` Live gameplay engine and AI logic used by the API
 - `api/` FastAPI server that exposes the engine over HTTP
 - `web/` React UI that talks to the API via `/api/*` routes
 
@@ -267,11 +267,11 @@ The API implementation follows a layered structure inside `api/src/api`:
 - `routers/`: FastAPI route handlers that map HTTP calls to service use-cases.
 - `services/`: application orchestration and business rules for API workflows.
 - `repositories/`: persistence boundary (in-memory or Redis-backed with per-game locks).
-- `engine/`: engine port + external engine module adapter.
+- `api/src/api/engine/`: adapter boundary used by the API layer to talk to `checkers_cli/checkers_engine`.
 - `domain/`: internal dataclasses shared between service/repository/engine layers.
 
 This keeps the transport layer, orchestration, state storage, and game logic encapsulated and swappable.
-The API does not contain a fallback gameplay engine; game behavior comes from `engine/`.
+The API does not contain gameplay rules; game behavior comes from `checkers_cli/checkers_engine`.
 
 ## Local TDD Workflow (No Render Calls)
 

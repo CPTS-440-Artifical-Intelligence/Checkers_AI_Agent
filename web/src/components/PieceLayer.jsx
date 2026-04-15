@@ -46,8 +46,9 @@ function UnknownPiece({ piece, checkerSizePercent }) {
   )
 }
 
-export default function PieceLayer({ pieces, geometry, playAreaStyle, selectedPieceId }) {
+export default function PieceLayer({ pieces, geometry, playAreaStyle, selectedPieceId, selectableSquares = [] }) {
   const selectedOverlaySizePercent = CHECKER_SIZE_PERCENT
+  const selectableSquareSet = new Set(selectableSquares)
 
   return (
     <div className='absolute z-10' style={playAreaStyle}>
@@ -57,6 +58,7 @@ export default function PieceLayer({ pieces, geometry, playAreaStyle, selectedPi
 
         const PieceComponent = pieceComponentByColor[piece.color] ?? UnknownPiece
         const isSelected = selectedPieceId === piece.id
+        const isSelectable = selectableSquareSet.has(piece.square)
 
         return (
           <div
@@ -71,6 +73,18 @@ export default function PieceLayer({ pieces, geometry, playAreaStyle, selectedPi
               height: `${position.size}%`
             }}
           >
+            {isSelectable && !isSelected ? (
+              <span
+                aria-hidden='true'
+                className='pointer-events-none absolute rounded-full border border-amber-100/80'
+                style={{
+                  width: `${selectedOverlaySizePercent}%`,
+                  height: `${selectedOverlaySizePercent}%`,
+                  boxShadow: '0 0 0 2px rgba(251, 191, 36, 0.25)'
+                }}
+              />
+            ) : null}
+
             {isSelected ? (
               <span
                 aria-hidden='true'

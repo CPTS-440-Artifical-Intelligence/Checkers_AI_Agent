@@ -58,6 +58,10 @@ export function getGame(gameId, options = {}) {
   return requestJson(`/api/games/${gameId}`, { signal: options.signal })
 }
 
+export function getLegalMoves(gameId, options = {}) {
+  return requestJson(`/api/games/${gameId}/legal-moves`, { signal: options.signal })
+}
+
 export function applyMove(gameId, path, options = {}) {
   if (import.meta.env.DEV) {
     console.log('[gamesClient] move request payload', {

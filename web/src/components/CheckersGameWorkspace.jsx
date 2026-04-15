@@ -15,10 +15,13 @@ export default function CheckersGameWorkspace() {
     isAiThinking,
     isBoardInteractive,
     isGameFinished,
+    legalDestinationSquares,
     pieces,
     playerAvatarState,
     redTeamStats,
+    selectableSquares,
     selectedPieceId,
+    selectedPathSquares,
     statusMessage,
     hasStatusError,
     onHoverSquare,
@@ -66,7 +69,10 @@ export default function CheckersGameWorkspace() {
           </div>
           
           <Board
+            legalDestinationSquares={legalDestinationSquares}
             pieces={pieces}
+            selectableSquares={selectableSquares}
+            selectedPathSquares={selectedPathSquares}
             turn={activeTurn}
             hoveredSquare={hoveredSquare}
             hoveredCheckerType={hoveredCheckerType}
@@ -78,6 +84,9 @@ export default function CheckersGameWorkspace() {
 
           <BoardInteractionStats
             hoveredSquare={hoveredSquare}
+            legalDestinationSquares={legalDestinationSquares}
+            selectableSquares={selectableSquares}
+            selectedPathSquares={selectedPathSquares}
           />
 
           <BoardStatusMessage

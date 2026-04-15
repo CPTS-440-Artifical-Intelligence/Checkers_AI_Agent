@@ -1,18 +1,18 @@
 import { useEffect, useMemo, useState } from 'react'
-import { createGame, applyAiMove, applyMove } from '../api/gamesClient'
+import { createGame, applyAiMove, applyMove, getLegalMoves } from '../api/gamesClient'
 import { AI_PLAYER_CONFIG, getAiMinimumStateDuration } from '../config/aiPlayerConfig'
-import { squareToCoord, toUiGameState } from '../models/apiGameState'
+import { toUiGameState } from '../models/apiGameState'
+import {
+  createLegalMoveIndex,
+  EMPTY_LEGAL_MOVE_INDEX,
+  findCompletedMove,
+  getNextSquares,
+  getSelectableSquares
+} from '../models/legalMoves'
 
 function toMessage(error, fallback) {
   if (error instanceof Error) return error.message
   return fallback
-}
-
-function toMovePath(fromSquare, toSquare) {
-  const from = squareToCoord(fromSquare)
-  const to = squareToCoord(toSquare)
-  if (!from || !to) return null
-  return [from, to]
 }
 
 function normalizeTeamColor(value) {
@@ -28,6 +28,16 @@ function formatWinnerMessage(winner) {
 
 function turnSelectionError(turn) {
   return `It's ${turn}'s turn. Select a ${turn} piece.`
+}
+
+function unavailablePieceMessage(mustCapture) {
+  return mustCapture
+    ? 'A capture is required. Select one of the highlighted pieces.'
+    : 'That piece does not have a legal move right now.'
+}
+
+function invalidDestinationMessage() {
+  return 'Choose one of the highlighted destination squares.'
 }
 
 function delay(ms) {
@@ -48,8 +58,9 @@ async function waitForMinimumDuration(startedAt, minimumMs) {
 
 export default function useCheckersGame() {
   const [hoveredSquare, setHoveredSquare] = useState(null)
-  const [selectedPieceId, setSelectedPieceId] = useState(null)
+  const [selectedPathSquares, setSelectedPathSquares] = useState([])
   const [gameState, setGameState] = useState(null)
+  const [legalMoveIndex, setLegalMoveIndex] = useState(EMPTY_LEGAL_MOVE_INDEX)
   const [isSyncing, setIsSyncing] = useState(false)
   const [isAiThinking, setIsAiThinking] = useState(false)
   const [errorMessage, setErrorMessage] = useState(null)
@@ -68,7 +79,14 @@ export default function useCheckersGame() {
 
         const uiState = toUiGameState(created)
         if (!uiState) throw new Error('Game state payload was empty.')
+
+        const legalMovesPayload = uiState.status === 'in_progress'
+          ? await getLegalMoves(uiState.gameId, { signal: controller.signal })
+          : null
+
+        if (disposed) return
         setGameState(uiState)
+        setLegalMoveIndex(createLegalMoveIndex(legalMovesPayload))
       } catch (error) {
         if (disposed || (error instanceof Error && error.name === 'AbortError')) return
         setErrorMessage(toMessage(error, 'Failed to initialize game from API.'))
@@ -113,6 +131,17 @@ export default function useCheckersGame() {
     }, {})
   }, [pieces])
 
+  const selectableSquares = useMemo(
+    () => getSelectableSquares(legalMoveIndex),
+    [legalMoveIndex]
+  )
+  const selectedSquare = selectedPathSquares[0] ?? null
+  const selectedPieceId = selectedSquare ? (pieceBySquare[selectedSquare]?.id ?? null) : null
+  const legalDestinationSquares = useMemo(
+    () => getNextSquares(legalMoveIndex, selectedPathSquares),
+    [legalMoveIndex, selectedPathSquares]
+  )
+
   const selectedPiece = useMemo(() => {
     if (!selectedPieceId) return null
     return pieces.find((piece) => piece.id === selectedPieceId) ?? null
@@ -122,21 +151,24 @@ export default function useCheckersGame() {
   const isGameFinished = gameState?.status === 'finished'
   const winner = normalizeTeamColor(gameState?.winner)
   const activeTurn = isGameFinished ? null : normalizeTeamColor(gameState?.turn)
-  const selectedSquare = selectedPiece?.square ?? null
   const hoveredCheckerType = hoveredSquare ? (pieceColorBySquare[hoveredSquare] ?? null) : null
   const isBoardInteractive = hasActiveGame && !isGameFinished && !isSyncing && !isAiThinking
+  const mustCapture = Boolean(gameState?.mustCapture)
   const statusMessage = errorMessage
     ?? (!hasActiveGame ? (isSyncing ? 'Starting new game...' : null) : null)
     ?? (isGameFinished ? formatWinnerMessage(winner) : null)
     ?? (isAiThinking ? 'Waiting for AI move...' : null)
+    ?? (selectedPathSquares.length > 1 ? 'Continue the capture sequence.' : null)
+    ?? (mustCapture && activeTurn === 'red' ? 'Capture required. Choose a highlighted move.' : null)
     ?? (isSyncing ? 'Syncing with API...' : null)
 
   useEffect(() => {
     if (!isGameFinished) return
 
-    setSelectedPieceId(null)
+    setSelectedPathSquares([])
     setHoveredSquare(null)
     setIsAiThinking(false)
+    setLegalMoveIndex(EMPTY_LEGAL_MOVE_INDEX)
   }, [isGameFinished])
 
   const playerAvatarState = isGameFinished
@@ -155,16 +187,28 @@ export default function useCheckersGame() {
     [pieceCountByColor.red]
   )
 
+  const syncLegalMoves = async (gameId, nextUiState) => {
+    if (!gameId || !nextUiState || nextUiState.status !== 'in_progress') {
+      setLegalMoveIndex(EMPTY_LEGAL_MOVE_INDEX)
+      return EMPTY_LEGAL_MOVE_INDEX
+    }
+
+    const payload = await getLegalMoves(gameId)
+    const nextIndex = createLegalMoveIndex(payload)
+    setLegalMoveIndex(nextIndex)
+    return nextIndex
+  }
+
   const handleSelectSquare = async (square) => {
     if (!gameState) return
 
     if (isGameFinished) {
-      setSelectedPieceId(null)
+      setSelectedPathSquares([])
       return
     }
 
     if (isAiThinking) {
-      setSelectedPieceId(null)
+      setSelectedPathSquares([])
       return
     }
 
@@ -172,26 +216,39 @@ export default function useCheckersGame() {
 
     const clickedPiece = pieceBySquare[square] ?? null
 
-    if (!selectedPieceId) {
-      if (clickedPiece) {
-        if (activeTurn && clickedPiece.color !== activeTurn) {
-          setErrorMessage(turnSelectionError(activeTurn))
-          return
-        }
+    if (selectedPathSquares.length === 0) {
+      if (!clickedPiece) return
 
-        setSelectedPieceId(clickedPiece.id)
-        setErrorMessage(null)
+      if (activeTurn && clickedPiece.color !== activeTurn) {
+        setErrorMessage(turnSelectionError(activeTurn))
+        return
       }
+
+      if (!selectableSquares.includes(square)) {
+        setErrorMessage(unavailablePieceMessage(mustCapture))
+        return
+      }
+
+      setSelectedPathSquares([square])
+      setErrorMessage(null)
       return
     }
 
-    if (selectedSquare === square) {
-      setSelectedPieceId(null)
+    const lastSelectedSquare = selectedPathSquares.at(-1)
+
+    if (lastSelectedSquare === square) {
+      setSelectedPathSquares(selectedPathSquares.slice(0, -1))
+      return
+    }
+
+    if (selectedPathSquares.length === 1 && selectableSquares.includes(square)) {
+      setSelectedPathSquares([square])
+      setErrorMessage(null)
       return
     }
 
     if (activeTurn && selectedPiece && selectedPiece.color !== activeTurn) {
-      setSelectedPieceId(null)
+      setSelectedPathSquares([])
       setErrorMessage(turnSelectionError(activeTurn))
       return
     }
@@ -201,9 +258,16 @@ export default function useCheckersGame() {
       return
     }
 
-    const path = toMovePath(selectedSquare, square)
-    if (!path) {
-      setErrorMessage('Unable to build move path from selected squares.')
+    if (!legalDestinationSquares.includes(square)) {
+      setErrorMessage(invalidDestinationMessage())
+      return
+    }
+
+    const nextPathSquares = [...selectedPathSquares, square]
+    const completedMove = findCompletedMove(legalMoveIndex, nextPathSquares)
+    if (!completedMove) {
+      setSelectedPathSquares(nextPathSquares)
+      setErrorMessage(null)
       return
     }
 
@@ -213,18 +277,19 @@ export default function useCheckersGame() {
     const { gameId } = gameState
 
     try {
-      const moved = await applyMove(gameId, path)
+      const moved = await applyMove(gameId, completedMove.path)
       const movedUiState = toUiGameState(moved)
       if (!movedUiState) throw new Error('Game state payload was empty.')
 
       setGameState(movedUiState)
-      setSelectedPieceId(null)
+      setSelectedPathSquares([])
 
       const shouldRequestAiMove =
         movedUiState.status === 'in_progress' &&
         movedUiState.turn === 'black'
 
       if (shouldRequestAiMove) {
+        setLegalMoveIndex(EMPTY_LEGAL_MOVE_INDEX)
         setIsAiThinking(true)
         const aiThinkingStartedAt = performance.now()
 
@@ -239,9 +304,12 @@ export default function useCheckersGame() {
           )
           await delay(AI_PLAYER_CONFIG.request.revealMoveDelayMs)
           setGameState(aiUiState)
+          await syncLegalMoves(gameId, aiUiState)
         } finally {
           setIsAiThinking(false)
         }
+      } else {
+        await syncLegalMoves(gameId, movedUiState)
       }
     } catch (error) {
       setErrorMessage(toMessage(error, 'Failed to apply move via API.'))
@@ -260,10 +328,13 @@ export default function useCheckersGame() {
     isAiThinking,
     isBoardInteractive,
     isGameFinished,
+    legalDestinationSquares,
     pieces,
     playerAvatarState,
     redTeamStats,
+    selectableSquares,
     selectedPieceId,
+    selectedPathSquares,
     selectedSquare,
     statusMessage,
     turn: gameState?.turn ?? null,

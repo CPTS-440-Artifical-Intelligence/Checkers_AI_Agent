@@ -13,9 +13,11 @@ export default function CheckersGameWorkspace() {
     hoveredCheckerType,
     hoveredSquare,
     isAiThinking,
+    isAnimatingMove,
     isBoardInteractive,
     isGameFinished,
     legalDestinationSquares,
+    movePhase,
     pieces,
     playerAvatarState,
     redTeamStats,
@@ -31,6 +33,7 @@ export default function CheckersGameWorkspace() {
   const workspaceStyle = {
     '--workspace-panel-aspect': 18 / 23
   }
+  const boardIsInteractive = isBoardInteractive && !isGameFinished
 
   return (
     <section className='w-full px-2'>
@@ -79,7 +82,10 @@ export default function CheckersGameWorkspace() {
             selectedPieceId={selectedPieceId}
             onHoverSquare={onHoverSquare}
             onSelectSquare={onSelectSquare}
-            isInteractive={isBoardInteractive && !isGameFinished}
+            isInteractive={boardIsInteractive}
+            isAiThinking={isAiThinking}
+            isAnimatingMove={isAnimatingMove}
+            movePhase={movePhase}
           />
 
           <BoardInteractionStats

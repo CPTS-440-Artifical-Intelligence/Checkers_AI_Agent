@@ -10,7 +10,7 @@ function App() {
       <main className='relative z-10 mx-auto flex min-h-[calc(100vh-4rem)] w-full max-w-[86rem] flex-col items-center justify-center gap-6'>
         <AppHeader
           title='Checkers AI Agent'
-          subtitle='Board interaction test view with hovered-cell feedback.'
+          subtitle='Can you beat the AI Agent? Try it out and see how well you can do!'
         />
 
         <CheckersGameWorkspace />

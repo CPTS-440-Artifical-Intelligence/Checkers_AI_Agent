@@ -1,3 +1,6 @@
+const TRACE_HEADER = 'X-Checkers-Trace-Id'
+const activeTraceIdByGame = new Map()
+
 export class ApiError extends Error {
   constructor(message, status, code) {
     super(message)
@@ -16,13 +19,38 @@ async function parseJsonResponse(response) {
   return response.json()
 }
 
-async function requestJson(path, { method = 'GET', body, signal } = {}) {
+function createTraceId(gameId) {
+  const gameKey = gameId ?? 'unknown'
+  const nonce = Math.random().toString(36).slice(2, 8)
+  return `checkers-${gameKey}-${Date.now().toString(36)}-${nonce}`
+}
+
+function resolveTraceId(gameId, options = {}) {
+  if (!gameId) return options.traceId ?? null
+  if (options.traceId) {
+    activeTraceIdByGame.set(gameId, options.traceId)
+    return options.traceId
+  }
+  if (options.createTrace !== true) {
+    return activeTraceIdByGame.get(gameId) ?? null
+  }
+
+  const traceId = createTraceId(gameId)
+  activeTraceIdByGame.set(gameId, traceId)
+  return traceId
+}
+
+async function requestJson(path, { method = 'GET', body, signal, traceId } = {}) {
   const init = {
     method,
     signal,
     headers: {
       Accept: 'application/json'
     }
+  }
+
+  if (traceId) {
+    init.headers[TRACE_HEADER] = traceId
   }
 
   if (body !== undefined) {
@@ -55,7 +83,10 @@ export function createGame(options = {}) {
 }
 
 export function getGame(gameId, options = {}) {
-  return requestJson(`/api/games/${gameId}`, { signal: options.signal })
+  return requestJson(`/api/games/${gameId}`, {
+    signal: options.signal,
+    traceId: resolveTraceId(gameId, options)
+  })
 }
 
 export function getLegalMoves(gameId, options = {}) {
@@ -74,7 +105,8 @@ export function applyMove(gameId, path, options = {}) {
   return requestJson(`/api/games/${gameId}/move`, {
     method: 'POST',
     body: { path },
-    signal: options.signal
+    signal: options.signal,
+    traceId: resolveTraceId(gameId, { ...options, createTrace: true })
   })
 }
 
@@ -92,6 +124,7 @@ export function applyAiMove(gameId, agent, options = {}) {
   return requestJson(`/api/games/${gameId}/ai-move`, {
     method: 'POST',
     body,
-    signal: options.signal
+    signal: options.signal,
+    traceId: resolveTraceId(gameId, options)
   })
 }

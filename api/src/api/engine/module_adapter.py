@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import importlib
+import logging
+import os
 import sys
 import time
 from pathlib import Path
@@ -8,6 +10,9 @@ from typing import Any
 
 from api.domain.models import AIMetrics, AgentConfig, GameStateData, LastMoveData, Path as MovePath
 from api.engine.port import EnginePort
+
+_DEBUG_ENABLED = os.getenv("CHECKERS_DEBUG", "").strip().lower() in {"1", "true", "yes", "on"}
+_LOGGER = logging.getLogger("checkers.debug")
 
 
 class EngineAdapterConfigurationError(RuntimeError):
@@ -117,6 +122,32 @@ def _default_move_data(path: MovePath) -> dict[str, object]:
     return {"path": _path_to_payload(path), "captures": [], "promoted": False}
 
 
+def _debug_log(event: str, **payload: object) -> None:
+    if not _DEBUG_ENABLED:
+        return
+    _LOGGER.info("[checkers-debug] %s %s", event, payload)
+
+
+def _state_summary(state: GameStateData) -> dict[str, object]:
+    return {
+        "status": state.status,
+        "turn": state.turn,
+        "winner": state.winner,
+        "must_capture": state.must_capture,
+        "last_move": None
+        if state.last_move is None
+        else {
+            "path": [list(coord) for coord in state.last_move.path],
+            "capture_count": len(state.last_move.captures),
+            "promoted": state.last_move.promoted,
+        },
+    }
+
+
+def _api_board_rows(board: list[list[str]]) -> list[str]:
+    return [" ".join(row) for row in board]
+
+
 class CheckersCliEngineAdapter(EnginePort):
     """
     Bridge the merged CLI engine into the API contract without modifying engine code.
@@ -178,8 +209,23 @@ class CheckersCliEngineAdapter(EnginePort):
         board = self._state_to_board(state)
         return [self._move_to_api_path(move) for move in board.get_legal_moves()]
 
-    def apply_move(self, state: GameStateData, path: MovePath) -> tuple[GameStateData, LastMoveData]:
+    def apply_move(
+        self,
+        state: GameStateData,
+        path: MovePath,
+        trace_id: str | None = None,
+    ) -> tuple[GameStateData, LastMoveData]:
         board = self._state_to_board(state)
+        _debug_log(
+            "engine.apply_move.translation",
+            trace_id=trace_id,
+            game_id=state.game_id,
+            api_turn=state.turn,
+            engine_turn=board.turn,
+            api_board=_api_board_rows(state.board),
+            engine_board=board.to_grid_string().splitlines(),
+            legal_moves=[_path_to_payload(self._move_to_api_path(move)) for move in board.get_legal_moves()],
+        )
         selected_move = self._resolve_move(board, path)
         original_piece = board.piece_at(selected_move.start)
         next_board = board.apply_move(selected_move)
@@ -190,11 +236,49 @@ class CheckersCliEngineAdapter(EnginePort):
             promoted=promoted,
         )
         next_state = self._board_to_state(state.game_id, next_board, last_move=last_move)
+        _debug_log(
+            "engine.apply_move.result",
+            trace_id=trace_id,
+            game_id=state.game_id,
+            input_state=_state_summary(state),
+            path=[list(coord) for coord in path],
+            output_state=_state_summary(next_state),
+            last_move={
+                "path": [list(coord) for coord in last_move.path],
+                "capture_count": len(last_move.captures),
+                "promoted": last_move.promoted,
+            },
+        )
         return next_state, last_move
 
-    def choose_ai_move(self, state: GameStateData, config: AgentConfig) -> tuple[MovePath, AIMetrics]:
+    def choose_ai_move(
+        self,
+        state: GameStateData,
+        config: AgentConfig,
+        trace_id: str | None = None,
+    ) -> tuple[MovePath, AIMetrics]:
         board = self._state_to_board(state)
-        if not board.get_legal_moves():
+        legal_moves = board.get_legal_moves()
+        _debug_log(
+            "engine.choose_ai_move.translation",
+            trace_id=trace_id,
+            game_id=state.game_id,
+            api_turn=state.turn,
+            engine_turn=board.turn,
+            api_board=_api_board_rows(state.board),
+            engine_board=board.to_grid_string().splitlines(),
+            legal_moves=[_path_to_payload(self._move_to_api_path(move)) for move in legal_moves],
+        )
+        if not legal_moves:
+            _debug_log(
+                "engine.choose_ai_move.reject",
+                trace_id=trace_id,
+                game_id=state.game_id,
+                input_state=_state_summary(state),
+                reason="Game has no legal moves.",
+                api_board=_api_board_rows(state.board),
+                engine_board=board.to_grid_string().splitlines(),
+            )
             raise ValueError("Game has no legal moves.")
 
         started_at = time.perf_counter()
@@ -205,15 +289,35 @@ class CheckersCliEngineAdapter(EnginePort):
         )
         elapsed_ms = max(1, int((time.perf_counter() - started_at) * 1000))
         if mapped_state is None:
+            _debug_log(
+                "engine.choose_ai_move.reject",
+                trace_id=trace_id,
+                game_id=state.game_id,
+                input_state=_state_summary(state),
+                reason="Game has no legal moves.",
+            )
             raise ValueError("Game has no legal moves.")
 
         selected_move = self._resolve_ai_move(board, mapped_state)
-        return self._move_to_api_path(selected_move), AIMetrics(
+        chosen_path = self._move_to_api_path(selected_move)
+        metrics = AIMetrics(
             depth_reached=depth_reached,
             nodes_expanded=nodes_expanded,
             prunes=0,
             time_ms=min(config.time_limit_ms, elapsed_ms),
         )
+        _debug_log(
+            "engine.choose_ai_move.result",
+            trace_id=trace_id,
+            game_id=state.game_id,
+            input_state=_state_summary(state),
+            agent=_agent_config_to_payload(config),
+            chosen_path=[list(coord) for coord in chosen_path],
+            metrics=metrics.as_dict(),
+            api_board=_api_board_rows(state.board),
+            engine_board=board.to_grid_string().splitlines(),
+        )
+        return chosen_path, metrics
 
     def _state_to_board(self, state: GameStateData) -> Any:
         self._validate_grid_shape(state.board)
@@ -242,15 +346,37 @@ class CheckersCliEngineAdapter(EnginePort):
             api_row, api_col = self._rotate_coord((row, col))
             grid[api_row][api_col] = self._engine_piece_to_api(piece)
 
-        winner = board.winner()
-        status = "finished" if winner is not None else "in_progress"
-        legal_moves = [] if status == "finished" else board.get_legal_moves()
+        api_turn = self._engine_turn_to_api(board.turn)
+        projected_state = GameStateData(
+            game_id=game_id,
+            board=grid,
+            turn=api_turn,
+            status="in_progress",
+            winner=None,
+            must_capture=False,
+            last_move=last_move,
+        )
+        legal_moves = self._state_to_board(projected_state).get_legal_moves()
+        has_no_legal_moves = not legal_moves
+        winner = None if not has_no_legal_moves else ("red" if api_turn == "black" else "black")
+        status = "finished" if has_no_legal_moves else "in_progress"
+        _debug_log(
+            "engine.board_to_state.translation",
+            game_id=game_id,
+            engine_turn=board.turn,
+            api_turn=api_turn,
+            api_board=_api_board_rows(grid),
+            engine_board=board.to_grid_string().splitlines(),
+            legal_moves=[_path_to_payload(self._move_to_api_path(move)) for move in legal_moves],
+            status=status,
+            winner=winner,
+        )
         return GameStateData(
             game_id=game_id,
             board=grid,
-            turn=self._engine_turn_to_api(board.turn),
+            turn=api_turn,
             status=status,
-            winner=None if winner is None else self._engine_turn_to_api(winner),
+            winner=winner,
             must_capture=any(move.is_capture for move in legal_moves),
             last_move=last_move,
         )

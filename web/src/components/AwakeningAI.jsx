@@ -16,10 +16,13 @@ export default function AwakeningAI() {
 
         <div className='space-y-2'>
           <h1 className='text-3xl font-semibold tracking-[-0.03em] text-slate-950 sm:text-4xl'>
-            Awakening AI Agent...
+            Awakening{' '}
+            <span className='bg-gradient-to-r from-amber-700 via-orange-700 to-amber-900 bg-clip-text text-transparent [text-shadow:0_2px_10px_rgba(217,119,6,0.22)]'>
+              AI Agent...
+            </span>
           </h1>
-          <p className='max-w-md text-sm font-medium text-slate-800/80 sm:text-base'>
-            Starting backend engine. The first load may take up to a minute.
+          <p className='max-w-md text-sm font-small text-slate-800/80 sm:text-base'>
+            Booting up game engine. The first load may take up to a minute.
           </p>
         </div>
       </div>

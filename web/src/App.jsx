@@ -11,6 +11,7 @@ import { toUiGameState } from './models/apiGameState'
 const CONNECT_TRANSITION_MS = 1800
 const GAME_FADE_IN_DELAY_MS = 300
 const GAME_FADE_IN_MS = 500
+const BACKEND_BOOT_FIRST_POLL_DELAY_MS = 3000
 const BACKEND_BOOT_INITIAL_RETRY_MS = 2500
 const BACKEND_BOOT_RETRY_MULTIPLIER = 1.8
 const BACKEND_BOOT_RETRY_CAP_MS = 10000
@@ -136,7 +137,9 @@ function App() {
       }, getRetryDelayMs(retryAttemptCount))
     }
 
-    void prepareInitialGameSession()
+    retryTimerId = window.setTimeout(() => {
+      void prepareInitialGameSession()
+    }, BACKEND_BOOT_FIRST_POLL_DELAY_MS)
 
     return () => {
       disposed = true

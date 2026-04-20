@@ -5,7 +5,12 @@ import BoardInteractionStats from './BoardInteractionStats'
 import BoardStatusMessage from './BoardStatusMessage'
 import useCheckersGame from '../hooks/useCheckersGame'
 
-export default function CheckersGameWorkspace() {
+export default function CheckersGameWorkspace({
+  desktopAiAvatarMotionRef = null,
+  mobileAiAvatarMotionRef = null,
+  hideAiAvatar = false,
+  introAiAvatarState = undefined
+}) {
   const {
     activeTurn,
     aiAvatarState,
@@ -47,11 +52,13 @@ export default function CheckersGameWorkspace() {
       >
         <div className='hidden shrink-0 lg:flex lg:h-[var(--workspace-panel-height)] lg:w-[calc(var(--workspace-board-size)*var(--workspace-panel-aspect))]'>
             <BlackTeamAvatar
+              avatarMotionRef={desktopAiAvatarMotionRef}
               className='lg:h-full'
               stats={blackTeamStats}
               isActiveTurn={activeTurn === 'black'}
               isThinking={isAiThinking}
-              avatarState={aiAvatarState}
+              avatarState={introAiAvatarState ?? aiAvatarState}
+              hideAvatar={hideAiAvatar}
             />
         </div>
 
@@ -59,10 +66,12 @@ export default function CheckersGameWorkspace() {
 
           <div className='grid w-full grid-cols-2 gap-3 sm:gap-5 lg:hidden'>
             <BlackTeamAvatar
+              avatarMotionRef={mobileAiAvatarMotionRef}
               stats={blackTeamStats}
               isActiveTurn={activeTurn === 'black'}
               isThinking={isAiThinking}
-              avatarState={aiAvatarState}
+              avatarState={introAiAvatarState ?? aiAvatarState}
+              hideAvatar={hideAiAvatar}
             />
             <PlayerTeamAvatar
               stats={redTeamStats}

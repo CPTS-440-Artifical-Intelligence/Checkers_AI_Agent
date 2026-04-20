@@ -45,8 +45,10 @@ export default function TeamAvatarSlot({
   toneClasses = '',
   activeClasses = '',
   avatar = null,
+  avatarMotionRef = null,
   avatarOffsetY = 0,
-  avatarTrimTop = 0
+  avatarTrimTop = 0,
+  hideAvatar = false
 }) {
   const safeAvatarOffsetY = Number.isFinite(avatarOffsetY) ? avatarOffsetY : 0
   const safeAvatarTrimTop = Number.isFinite(avatarTrimTop) && avatarTrimTop > 0
@@ -118,7 +120,12 @@ export default function TeamAvatarSlot({
                 className='grid size-full place-items-center'
                 style={hasAvatarTransform ? { transform: `translateY(${avatarTranslateY}px)` } : undefined}
               >
-                <div className='origin-top scale-[var(--avatar-scale-base)] sm:scale-[var(--avatar-scale-sm)] lg:scale-[var(--avatar-scale-lg)] 2xl:scale-[var(--avatar-scale-2xl)]'>
+                <div
+                  ref={avatarMotionRef}
+                  className={`origin-top scale-[var(--avatar-scale-base)] transition-opacity duration-150 sm:scale-[var(--avatar-scale-sm)] lg:scale-[var(--avatar-scale-lg)] 2xl:scale-[var(--avatar-scale-2xl)] ${
+                    hideAvatar ? 'opacity-0' : 'opacity-100'
+                  }`}
+                >
                   {avatar ?? <span className='font-mono'>Avatar / Animation</span>}
                 </div>
               </div>

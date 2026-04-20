@@ -1,20 +1,38 @@
 import SpriteAvatar from './SpriteAvatar'
 
-export default function AwakeningAI() {
+export default function AwakeningAI({
+  avatarMotionRef = null,
+  hideAvatar = false,
+  isTextFading = false,
+  isAvatarShellFading = false
+}) {
   return (
     <section className='flex w-full flex-1 items-center justify-center px-4'>
       <div className='flex max-w-xl flex-col items-center gap-5 text-center text-slate-900'>
-        <div className='rounded-full border border-slate-950/10 bg-white/20 p-5 shadow-[0_18px_80px_rgba(15,23,42,0.18)] backdrop-blur-sm'>
-          <SpriteAvatar
-            type='ai'
-            state='thinking'
-            size={224}
-            fps={10}
-            isTurn
-          />
+        <div
+          className={`rounded-full border border-slate-950/10 bg-white/20 p-5 shadow-[0_18px_80px_rgba(15,23,42,0.18)] backdrop-blur-sm transition-opacity duration-300 ease-out ${
+            isAvatarShellFading ? 'opacity-0' : 'opacity-100'
+          }`}
+        >
+          <div
+            ref={avatarMotionRef}
+            className={`transition-opacity duration-150 ${hideAvatar ? 'opacity-0' : 'opacity-100'}`}
+          >
+            <SpriteAvatar
+              type='ai'
+              state='thinking'
+              size={224}
+              fps={10}
+              isTurn
+            />
+          </div>
         </div>
 
-        <div className='space-y-2'>
+        <div
+          className={`space-y-2 transition-opacity duration-300 ease-out ${
+            isTextFading ? 'opacity-0' : 'opacity-100'
+          }`}
+        >
           <h1 className='text-3xl font-semibold tracking-[-0.03em] text-slate-950 sm:text-4xl'>
             Awakening{' '}
             <span className='bg-gradient-to-r from-amber-700 via-orange-700 to-amber-900 bg-clip-text text-transparent [text-shadow:0_2px_10px_rgba(217,119,6,0.22)]'>

@@ -30,13 +30,15 @@ class AIMetrics:
     nodes_expanded: int
     prunes: int
     time_ms: int
+    score: float
 
-    def as_dict(self) -> dict[str, int]:
+    def as_dict(self) -> dict[str, int | float]:
         return {
             "depth_reached": self.depth_reached,
             "nodes_expanded": self.nodes_expanded,
             "prunes": self.prunes,
             "time_ms": self.time_ms,
+            "score": self.score,
         }
 
 

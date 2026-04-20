@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { createGame, getGame, applyAiMove, applyMove, getLegalMoves } from '../api/gamesClient'
+import { createGame, resetGame, getGame, applyAiMove, applyMove, getLegalMoves } from '../api/gamesClient'
 import { AI_PLAYER_CONFIG, getAiMinimumStateDuration } from '../config/aiPlayerConfig'
 import { createInitialRenderedPieces, reconcileRenderedPieces } from '../models/animatedPieces'
-import { toUiGameState } from '../models/apiGameState'
+import { toUiAiMetrics, toUiGameState } from '../models/apiGameState'
 import {
   createLegalMoveIndex,
   EMPTY_LEGAL_MOVE_INDEX,
@@ -17,6 +17,41 @@ const ANIMATION_TIMING_MS = Object.freeze({
   capture: 140,
   promotion: 180
 })
+
+const COMPACT_NUMBER_FORMATTER = new Intl.NumberFormat('en', {
+  notation: 'compact',
+  maximumFractionDigits: 1
+})
+
+function formatCompactWholeNumber(value) {
+  if (!Number.isFinite(value)) return '--'
+  return COMPACT_NUMBER_FORMATTER.format(Math.round(value))
+}
+
+function formatDepth(value) {
+  if (!Number.isFinite(value)) return '--'
+  return String(Math.max(0, Math.round(value)))
+}
+
+function formatScore(value) {
+  if (!Number.isFinite(value)) return '--'
+  const absoluteValue = Math.abs(value)
+  const precision = absoluteValue >= 10 ? 1 : 2
+  const formattedValue = value.toFixed(precision).replace(/\.?0+$/, '')
+  return value > 0 ? `+${formattedValue}` : formattedValue
+}
+
+function formatTimeMs(value) {
+  if (!Number.isFinite(value)) return '--'
+  if (value >= 1000) {
+    return `${(value / 1000).toFixed(value >= 10_000 ? 1 : 2).replace(/\.?0+$/, '')}s`
+  }
+  return `${Math.max(0, Math.round(value))}ms`
+}
+
+function createStat(label, value, title = undefined, emphasis = 'primary') {
+  return { label, value, title, emphasis }
+}
 
 function toMessage(error, fallback) {
   if (error instanceof Error) return error.message
@@ -142,6 +177,7 @@ export default function useCheckersGame({ bootstrapSession = null } = {}) {
   const [gameState, setGameState] = useState(null)
   const [, setAuthoritativeGameState] = useState(null)
   const [renderedPieces, setRenderedPieces] = useState([])
+  const [latestAiMetrics, setLatestAiMetrics] = useState(null)
   const [legalMoveIndex, setLegalMoveIndex] = useState(EMPTY_LEGAL_MOVE_INDEX)
   const [isInitializing, setIsInitializing] = useState(false)
   const [requestPhase, setRequestPhase] = useState('idle')
@@ -429,6 +465,7 @@ export default function useCheckersGame({ bootstrapSession = null } = {}) {
 
       const aiUiState = toUiGameState(aiEnvelope?.state)
       if (!aiUiState) throw new Error('AI move payload was empty.')
+      setLatestAiMetrics(toUiAiMetrics(aiEnvelope?.ai?.metrics))
 
       queuedAiMoveRef.current = {
         requestId,
@@ -552,6 +589,57 @@ export default function useCheckersGame({ bootstrapSession = null } = {}) {
       })
   }
 
+  const restartGameSession = async () => {
+    const currentGameId = gameStateRef.current?.gameId ?? authoritativeGameStateRef.current?.gameId ?? null
+    const requestId = requestIdRef.current + 1
+    requestIdRef.current = requestId
+    activeRequestIdRef.current = requestId
+    playerResolvedStateRef.current = null
+    playerOptimisticPiecesRef.current = []
+    queuedAiMoveRef.current = null
+    aiThinkingReadyAtRef.current = 0
+
+    clearAnimationTimer()
+    clearAiThinkingTimer()
+    setSelectedPathSquares([])
+    setHoveredSquare(null)
+    setErrorMessage(null)
+    setAiThinkingState(false)
+    setAnimationPhaseState('idle')
+    setMovePhase('idle')
+    setRequestPhaseState('resetting_game')
+    setLegalMoveIndex(EMPTY_LEGAL_MOVE_INDEX)
+    setLatestAiMetrics(null)
+
+    try {
+      const nextStatePayload = currentGameId
+        ? await resetGame(currentGameId)
+        : await createGame()
+      if (!isCurrentRequest(requestId)) return
+
+      const nextUiState = toUiGameState(nextStatePayload)
+      if (!nextUiState) throw new Error('Game state payload was empty.')
+
+      setAuthoritativeState(nextUiState)
+      setVisibleGameState(nextUiState)
+      setRenderedPiecesState(createInitialRenderedPieces(nextUiState.pieces))
+
+      if (nextUiState.status === 'in_progress' && nextUiState.turn === 'red') {
+        setRequestPhaseState('syncing_legal_moves')
+        await syncLegalMoves(nextUiState.gameId, nextUiState, requestId)
+        if (!isCurrentRequest(requestId)) return
+      }
+
+      setRequestPhaseState('idle')
+      unlockBoardIfReady(requestId)
+    } catch (error) {
+      if (!isCurrentRequest(requestId)) return
+
+      setRequestPhaseState('idle')
+      setErrorMessage(toMessage(error, 'Failed to restart game.'))
+    }
+  }
+
   useEffect(() => {
     mountedRef.current = true
 
@@ -576,6 +664,7 @@ export default function useCheckersGame({ bootstrapSession = null } = {}) {
           setVisibleGameState(bootstrapSession.gameState)
           setRenderedPiecesState(createInitialRenderedPieces(bootstrapSession.gameState.pieces))
           setLegalMoveIndex(createLegalMoveIndex(bootstrapSession.legalMovesPayload))
+          setLatestAiMetrics(bootstrapSession.latestAiMetrics ?? null)
           return
         }
 
@@ -588,6 +677,7 @@ export default function useCheckersGame({ bootstrapSession = null } = {}) {
         setAuthoritativeState(uiState)
         setVisibleGameState(uiState)
         setRenderedPiecesState(createInitialRenderedPieces(uiState.pieces))
+        setLatestAiMetrics(null)
 
         if (uiState.status !== 'in_progress' || uiState.turn !== 'red') {
           setLegalMoveIndex(EMPTY_LEGAL_MOVE_INDEX)
@@ -627,6 +717,20 @@ export default function useCheckersGame({ bootstrapSession = null } = {}) {
     return authoritativePieces.reduce(
       (counts, piece) => {
         counts[piece.color] = (counts[piece.color] ?? 0) + 1
+        return counts
+      },
+      { red: 0, black: 0 }
+    )
+  }, [gameState?.pieces])
+
+  const kingCountByColor = useMemo(() => {
+    const authoritativePieces = gameState?.pieces ?? []
+
+    return authoritativePieces.reduce(
+      (counts, piece) => {
+        if (piece.king) {
+          counts[piece.color] = (counts[piece.color] ?? 0) + 1
+        }
         return counts
       },
       { red: 0, black: 0 }
@@ -707,12 +811,42 @@ export default function useCheckersGame({ bootstrapSession = null } = {}) {
     : undefined
 
   const blackTeamStats = useMemo(
-    () => [{ label: 'Pieces', value: pieceCountByColor.black }],
-    [pieceCountByColor.black]
+    () => [
+      createStat('Pieces', String(pieceCountByColor.black), `${pieceCountByColor.black} pieces remaining`, 'primary'),
+      createStat('Kings', String(kingCountByColor.black), `${kingCountByColor.black} kings on board`, 'primary'),
+      createStat(
+        'Depth',
+        formatDepth(latestAiMetrics?.depthReached),
+        latestAiMetrics ? `Search depth reached: ${latestAiMetrics.depthReached}` : 'Awaiting AI move data',
+        'secondary'
+      ),
+      createStat(
+        'Nodes',
+        formatCompactWholeNumber(latestAiMetrics?.nodesExpanded),
+        latestAiMetrics ? `${latestAiMetrics.nodesExpanded.toLocaleString()} nodes expanded` : 'Awaiting AI move data',
+        'secondary'
+      ),
+      createStat(
+        'Score',
+        formatScore(latestAiMetrics?.score),
+        latestAiMetrics ? `Evaluation score: ${latestAiMetrics.score}` : 'Awaiting AI move data',
+        'secondary'
+      ),
+      createStat(
+        'Time',
+        formatTimeMs(latestAiMetrics?.timeMs),
+        latestAiMetrics ? `Search time: ${latestAiMetrics.timeMs} ms` : 'Awaiting AI move data',
+        'secondary'
+      )
+    ],
+    [kingCountByColor.black, latestAiMetrics, pieceCountByColor.black]
   )
   const redTeamStats = useMemo(
-    () => [{ label: 'Pieces', value: pieceCountByColor.red }],
-    [pieceCountByColor.red]
+    () => [
+      createStat('Pieces', String(pieceCountByColor.red), `${pieceCountByColor.red} pieces remaining`, 'primary'),
+      createStat('Kings', String(kingCountByColor.red), `${kingCountByColor.red} kings on board`, 'primary')
+    ],
+    [kingCountByColor.red, pieceCountByColor.red]
   )
 
   const handleSelectSquare = (square) => {
@@ -803,9 +937,12 @@ export default function useCheckersGame({ bootstrapSession = null } = {}) {
     selectedPathSquares,
     selectedSquare,
     statusMessage,
+    winner,
     turn: activeTurn,
     hasStatusError: Boolean(errorMessage),
+    isRestartingGame: requestPhase === 'resetting_game',
     onHoverSquare: setHoveredSquare,
+    onRestartGame: restartGameSession,
     onSelectSquare: handleSelectSquare
   }
 }

@@ -82,6 +82,17 @@ export function createGame(options = {}) {
   return requestJson('/api/games', { method: 'POST', signal: options.signal })
 }
 
+export function resetGame(gameId, options = {}) {
+  if (gameId) {
+    activeTraceIdByGame.delete(gameId)
+  }
+
+  return requestJson(`/api/games/${gameId}/reset`, {
+    method: 'POST',
+    signal: options.signal
+  })
+}
+
 export function getGame(gameId, options = {}) {
   return requestJson(`/api/games/${gameId}`, {
     signal: options.signal,

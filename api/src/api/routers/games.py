@@ -56,7 +56,7 @@ def _legal_moves_to_response(
 def _ai_move_to_response(
     state: dict[str, object],
     chosen_path: Path,
-    metrics: dict[str, int],
+    metrics: dict[str, int | float],
 ) -> AIMoveEnvelopeResponse:
     return AIMoveEnvelopeResponse(
         state=_state_to_response(state),

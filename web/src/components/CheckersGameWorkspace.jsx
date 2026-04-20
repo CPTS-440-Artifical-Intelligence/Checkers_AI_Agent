@@ -3,6 +3,7 @@ import BlackTeamAvatar from './BlackTeamAvatar'
 import PlayerTeamAvatar from './PlayerTeamAvatar'
 import BoardInteractionStats from './BoardInteractionStats'
 import BoardStatusMessage from './BoardStatusMessage'
+import GameOverRestartOverlay from './GameOverRestartOverlay'
 import useCheckersGame from '../hooks/useCheckersGame'
 
 export default function CheckersGameWorkspace({
@@ -22,6 +23,7 @@ export default function CheckersGameWorkspace({
     isAnimatingMove,
     isBoardInteractive,
     isGameFinished,
+    isRestartingGame,
     legalDestinationSquares,
     movePhase,
     pieces,
@@ -31,24 +33,26 @@ export default function CheckersGameWorkspace({
     selectedPieceId,
     selectedPathSquares,
     statusMessage,
+    winner,
     hasStatusError,
     onHoverSquare,
+    onRestartGame,
     onSelectSquare
   } = useCheckersGame({ bootstrapSession })
 
   const workspaceStyle = {
-    '--workspace-panel-aspect': 18 / 23
+    '--workspace-panel-aspect': 18 / 24.5
   }
   const boardIsInteractive = isBoardInteractive && !isGameFinished
 
   return (
-    <section className='w-full px-2'>
+    <section className='relative w-full px-2'>
       <div
         className='mx-auto flex w-full items-start justify-center gap-3 lg:[--workspace-gap:0.75rem] xl:gap-5 xl:[--workspace-gap:1.25rem]'
         style={{
           ...workspaceStyle,
           '--workspace-board-size': 'min(44rem, calc(100vh - 16rem), calc((100vw - 3rem - (var(--workspace-gap) * 2)) / (1 + (2 * var(--workspace-panel-aspect)))))',
-          '--workspace-panel-height': 'calc(var(--workspace-board-size) * 0.92)'
+          '--workspace-panel-height': 'calc(var(--workspace-board-size) * 1)'
         }}
       >
         <div className='hidden shrink-0 lg:flex lg:h-[var(--workspace-panel-height)] lg:w-[calc(var(--workspace-board-size)*var(--workspace-panel-aspect))]'>
@@ -120,6 +124,14 @@ export default function CheckersGameWorkspace({
           />
         </div>
       </div>
+
+      {isGameFinished ? (
+        <GameOverRestartOverlay
+          winner={winner}
+          isRestarting={isRestartingGame}
+          onRestart={onRestartGame}
+        />
+      ) : null}
     </section>
   )
 }

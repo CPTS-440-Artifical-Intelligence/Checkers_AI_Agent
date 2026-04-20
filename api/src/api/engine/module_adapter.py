@@ -101,8 +101,9 @@ def _to_metrics(raw_metrics: Any, depth_hint: int) -> AIMetrics:
             nodes_expanded=int(raw_metrics.get("nodes_expanded", 0)),
             prunes=int(raw_metrics.get("prunes", 0)),
             time_ms=int(raw_metrics.get("time_ms", 0)),
+            score=float(raw_metrics.get("score", 0.0)),
         )
-    return AIMetrics(depth_reached=depth_hint, nodes_expanded=0, prunes=0, time_ms=0)
+    return AIMetrics(depth_reached=depth_hint, nodes_expanded=0, prunes=0, time_ms=0, score=0.0)
 
 
 def _path_to_payload(path: MovePath) -> list[list[int]]:
@@ -282,7 +283,7 @@ class CheckersCliEngineAdapter(EnginePort):
             raise ValueError("Game has no legal moves.")
 
         started_at = time.perf_counter()
-        mapped_state, depth_reached, nodes_expanded, _score = self._minimax_cls.heuristic_alpha_beta_minimax(
+        mapped_state, depth_reached, nodes_expanded, score = self._minimax_cls.heuristic_alpha_beta_minimax(
             config.max_depth,
             board,
             self._is_maximizing_red_player(board.turn),
@@ -305,6 +306,7 @@ class CheckersCliEngineAdapter(EnginePort):
             nodes_expanded=nodes_expanded,
             prunes=0,
             time_ms=min(config.time_limit_ms, elapsed_ms),
+            score=float(score),
         )
         _debug_log(
             "engine.choose_ai_move.result",

@@ -99,6 +99,7 @@ class AIMetricsResponse(BaseModel):
     nodes_expanded: int
     prunes: int
     time_ms: int
+    score: float
 
 
 class AIMoveDetailsResponse(BaseModel):

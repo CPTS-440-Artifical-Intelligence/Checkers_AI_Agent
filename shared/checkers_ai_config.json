@@ -1,0 +1,8 @@
+{
+  "engine": {
+    "type": "alphabeta",
+    "max_depth": 15,
+    "time_limit_ms": 800,
+    "seed": null
+  }
+}

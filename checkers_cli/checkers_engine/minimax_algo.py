@@ -7,6 +7,10 @@ from checkers_engine.checkers_board import Board;
 # Minimax using the mapping of 
 #
 class CheckersMinimax:
+    @staticmethod
+    def __terminal_no_move_value(is_max_node: bool) -> float:
+        # If the side to move has no legal successors, that side loses immediately.
+        return 0.0 if is_max_node else 1.0
     
     # 0 <= eval <= 1, where eval = 1 means the maximizing player has won, and eval = 0 means the minimizing player has won. (currently eval cant really get to 1 but close) (also when getting closer to win state might randomly choose positions since no value coressponds to closeness to another piece)
     @staticmethod
@@ -45,9 +49,13 @@ class CheckersMinimax:
             return CheckersMinimax.__eval(mapped_board_state, is_maximizing_red_player), None, node_count, greatest_depth_reached;
         
         
+        children = MappedCheckerBoard.generateAllPossibleNextMappedBoardStates(mapped_board_state, is_maximizing_red_player)
+        if not children:
+            return CheckersMinimax.__terminal_no_move_value(True), None, node_count, greatest_depth_reached;
+
         # DFS
         value, move = -math.inf, None;
-        for child in MappedCheckerBoard.generateAllPossibleNextMappedBoardStates(mapped_board_state, is_maximizing_red_player):
+        for child in children:
             node_count += 1;
             
             # get the minimum value of the child node from its children
@@ -73,9 +81,13 @@ class CheckersMinimax:
         if CheckersMinimax.__is_cutoff(mapped_board_state, depth_limit, current_depth):
             return CheckersMinimax.__eval(mapped_board_state, is_maximizing_red_player), None, node_count, greatest_depth_reached;
         
+        children = MappedCheckerBoard.generateAllPossibleNextMappedBoardStates(mapped_board_state, not is_maximizing_red_player)
+        if not children:
+            return CheckersMinimax.__terminal_no_move_value(False), None, node_count, greatest_depth_reached;
+
         # DFS
         value, move = math.inf, None;
-        for child in MappedCheckerBoard.generateAllPossibleNextMappedBoardStates(mapped_board_state, not is_maximizing_red_player):
+        for child in children:
             node_count += 1;
             
             # get the maximum value of the child node from its children

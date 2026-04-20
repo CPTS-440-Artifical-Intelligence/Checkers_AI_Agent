@@ -181,6 +181,10 @@ function loadSpriteSheetMetrics(sprite) {
   return promise
 }
 
+export function preloadSpriteSheetMetrics(sprite) {
+  return loadSpriteSheetMetrics(sprite).catch(() => null)
+}
+
 export function resolveSpriteDrawPlan(metrics, sprite, stageSize) {
   const {
     anchorXRatio,

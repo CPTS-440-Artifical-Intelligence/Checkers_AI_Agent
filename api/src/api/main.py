@@ -1,3 +1,4 @@
+import logging
 import os
 
 from fastapi import APIRouter, FastAPI
@@ -6,6 +7,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from api.errors import register_exception_handlers
 from api.routers.games import router as games_router
 from api.routers.health import router as health_router
+
+_DEBUG_LOGGER_NAME = "checkers.debug"
+_DEBUG_HANDLER_NAME = "checkers.debug.console"
 
 
 def _build_api_router() -> APIRouter:
@@ -35,7 +39,31 @@ def _configure_cors(app: FastAPI) -> None:
     )
 
 
+def _configure_checkers_debug_logger() -> None:
+    raw = os.getenv("CHECKERS_DEBUG", "").strip().lower()
+    if raw not in {"1", "true", "yes", "on"}:
+        return
+
+    logger = logging.getLogger(_DEBUG_LOGGER_NAME)
+    logger.setLevel(logging.INFO)
+    logger.propagate = False
+
+    has_console_handler = any(
+        getattr(handler, "name", "") == _DEBUG_HANDLER_NAME
+        for handler in logger.handlers
+    )
+    if has_console_handler:
+        return
+
+    handler = logging.StreamHandler()
+    handler.set_name(_DEBUG_HANDLER_NAME)
+    handler.setLevel(logging.INFO)
+    handler.setFormatter(logging.Formatter("%(message)s"))
+    logger.addHandler(handler)
+
+
 def create_app() -> FastAPI:
+    _configure_checkers_debug_logger()
     app = FastAPI(title="Checkers API")
     _configure_cors(app)
     app.include_router(_build_api_router())

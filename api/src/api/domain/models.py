@@ -3,6 +3,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TypeAlias
 
+from api.shared_ai_config import SHARED_AI_ENGINE_CONFIG
+
 Coordinate: TypeAlias = tuple[int, int]
 Path: TypeAlias = list[Coordinate]
 
@@ -16,10 +18,10 @@ def _coords_to_lists(coords: list[Coordinate]) -> list[list[int]]:
 # ---------------------------------------------------------------------------
 @dataclass(slots=True)
 class AgentConfig:
-    type: str = "alphabeta"
-    max_depth: int = 6
-    time_limit_ms: int = 800
-    seed: int | None = None
+    type: str = SHARED_AI_ENGINE_CONFIG.type
+    max_depth: int = SHARED_AI_ENGINE_CONFIG.max_depth
+    time_limit_ms: int = SHARED_AI_ENGINE_CONFIG.time_limit_ms
+    seed: int | None = SHARED_AI_ENGINE_CONFIG.seed
 
 
 @dataclass(slots=True)
@@ -28,13 +30,15 @@ class AIMetrics:
     nodes_expanded: int
     prunes: int
     time_ms: int
+    score: float
 
-    def as_dict(self) -> dict[str, int]:
+    def as_dict(self) -> dict[str, int | float]:
         return {
             "depth_reached": self.depth_reached,
             "nodes_expanded": self.nodes_expanded,
             "prunes": self.prunes,
             "time_ms": self.time_ms,
+            "score": self.score,
         }
 
 

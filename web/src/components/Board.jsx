@@ -23,10 +23,28 @@ export default function Board({
   selectedPieceId,
   onHoverSquare,
   onSelectSquare,
-  isInteractive = true
+  isInteractive = true,
+  isAiThinking = false,
+  isAnimatingMove = false,
+  movePhase = 'idle'
 }) {
+  const interactionAffordancesEnabled = isInteractive
+  const visibleSelectableSquares = interactionAffordancesEnabled ? selectableSquares : []
+  const visibleSelectedPathSquares = interactionAffordancesEnabled ? selectedPathSquares : []
+  const visibleLegalDestinationSquares = interactionAffordancesEnabled ? legalDestinationSquares : []
+  const visibleHoveredSquare = interactionAffordancesEnabled ? hoveredSquare : null
+  const visibleHoveredCheckerType = interactionAffordancesEnabled ? hoveredCheckerType : null
+  const visibleSelectedPieceId = interactionAffordancesEnabled ? selectedPieceId : null
+  const isBusy = isAiThinking || isAnimatingMove || movePhase !== 'idle'
+
   return (
-    <div className='relative aspect-square w-[min(90vw,calc(100vh-16rem))] max-w-[44rem] lg:w-[var(--workspace-board-size)] lg:max-w-none'>
+    <div
+      className={`relative aspect-square w-[min(90vw,calc(100vh-16rem))] max-w-[44rem] lg:w-[var(--workspace-board-size)] lg:max-w-none ${isInteractive ? '' : 'cursor-default'}`}
+      aria-busy={isBusy}
+      aria-disabled={!isInteractive}
+      data-interactive={isInteractive ? 'true' : 'false'}
+      data-move-phase={movePhase}
+    >
       <BoardFrame geometry={boardGeometry} playAreaStyle={playAreaStyle} />
 
       <TurnGlowLayer
@@ -40,21 +58,21 @@ export default function Board({
         pieces={pieces}
         geometry={boardGeometry}
         playAreaStyle={playAreaStyle}
-        selectedPieceId={selectedPieceId}
-        selectableSquares={selectableSquares}
+        selectedPieceId={visibleSelectedPieceId}
+        selectableSquares={visibleSelectableSquares}
       />
 
       <BoardHoverLayer
         geometry={boardGeometry}
-        hoveredSquare={hoveredSquare}
-        hoveredCheckerType={hoveredCheckerType}
+        hoveredSquare={visibleHoveredSquare}
+        hoveredCheckerType={visibleHoveredCheckerType}
         checkerOverlaySizePercent={CHECKER_SIZE_PERCENT}
-        legalDestinationSquares={legalDestinationSquares}
+        legalDestinationSquares={visibleLegalDestinationSquares}
         onHoverSquare={onHoverSquare}
         onSelectSquare={onSelectSquare}
         playAreaStyle={playAreaStyle}
-        selectableSquares={selectableSquares}
-        selectedPathSquares={selectedPathSquares}
+        selectableSquares={visibleSelectableSquares}
+        selectedPathSquares={visibleSelectedPathSquares}
         isInteractive={isInteractive}
       />
     </div>

@@ -163,7 +163,7 @@ Request:
 {
   "agent": {
     "type": "alphabeta",
-    "max_depth": 6,
+    "max_depth": 15,
     "time_limit_ms": 800,
     "seed": 123
   }
@@ -178,17 +178,18 @@ Response:
   "ai": {
     "chosen_move": { "path": [[2,1],[3,2]] },
     "metrics": {
-      "depth_reached": 6,
+      "depth_reached": 15,
       "nodes_expanded": 18432,
       "prunes": 5100,
-      "time_ms": 742
+      "time_ms": 742,
+      "score": 1.75
     }
   }
 }
 ```
 
 Notes:
-- If an `agent` field is omitted, the API should use reasonable defaults.
+- If an `agent` field is omitted, the API uses the shared engine defaults from `shared/checkers_ai_config.json`.
 - `metrics` fields may evolve, but should keep these keys if possible.
 
 ### Error Handling
@@ -254,6 +255,7 @@ If Netlify proxies `/api/*` to Render, CORS is not required for normal frontend 
 ### Engine Requirements (What the API Expects)
 
 The API uses the merged CLI engine in `checkers_cli/checkers_engine` through the adapter at `api/src/api/engine/module_adapter.py`.
+Shared AI defaults for the CLI, API, and web client live in `shared/checkers_ai_config.json`.
 
 Deployment note:
 - Keep the monorepo layout intact so `checkers_cli/` is available next to `api/`.

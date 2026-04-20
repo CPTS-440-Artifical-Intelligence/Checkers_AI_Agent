@@ -1,6 +1,7 @@
 from checkers_engine.checkers_board import BLACK_MAN, Board, Move, WHITE_MAN
 from checkers_engine.checkerboard_mapping import MappedCheckerBoard
 from checkers_engine.minimax_algo import CheckersMinimax
+from shared_ai_config import SHARED_AI_ENGINE_CONFIG
 
 
 def print_header() -> None:
@@ -68,7 +69,11 @@ def main() -> None:
 
         if board.turn == ai_side:
             print("AI is thinking...")
-            mapped_result, depth_reached, nodes_visited, score = CheckersMinimax.heuristic_alpha_beta_minimax(15, board, is_maximizing_red_player)
+            mapped_result, depth_reached, nodes_visited, score = CheckersMinimax.heuristic_alpha_beta_minimax(
+                SHARED_AI_ENGINE_CONFIG.max_depth,
+                board,
+                is_maximizing_red_player,
+            )
             board = MappedCheckerBoard.generateCheckerBoardFromMapping(mapped_result, board.turn == WHITE_MAN)
             print(f"AI moved. (depth={depth_reached}, nodes={nodes_visited}, score={score:.4f})\n")
             print_board(board)

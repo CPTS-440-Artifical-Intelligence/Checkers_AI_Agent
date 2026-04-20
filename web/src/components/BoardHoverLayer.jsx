@@ -23,20 +23,21 @@ export default function BoardHoverLayer({
   const selectableSquareSet = new Set(selectableSquares ?? [])
   const destinationSquareSet = new Set(legalDestinationSquares ?? [])
   const selectedPathSquareSet = new Set(selectedPathSquares ?? [])
+  const canShowInputAffordances = isInteractive
 
   return (
     <div
-      className='absolute z-20 grid grid-cols-6 grid-rows-6'
+      className={`absolute z-20 grid grid-cols-6 grid-rows-6 ${isInteractive ? '' : 'pointer-events-none'}`}
       style={playAreaStyle}
       onMouseLeave={() => onHoverSquare(null)}
     >
       {geometry.cells.map((cell) => {
-        const isHovered = hoveredSquare === cell.square
+        const isHovered = canShowInputAffordances && hoveredSquare === cell.square
         const shouldHighlightChecker = isHovered && hoveredCheckerType !== null
         const shouldHighlightCell = isHovered && hoveredCheckerType === null
-        const isSelectable = selectableSquareSet.has(cell.square)
-        const isDestination = destinationSquareSet.has(cell.square)
-        const isInSelectedPath = selectedPathSquareSet.has(cell.square)
+        const isSelectable = canShowInputAffordances && selectableSquareSet.has(cell.square)
+        const isDestination = canShowInputAffordances && destinationSquareSet.has(cell.square)
+        const isInSelectedPath = canShowInputAffordances && selectedPathSquareSet.has(cell.square)
         const cellClassName = isDestination
           ? 'bg-sky-300/30 ring-2 ring-inset ring-sky-900/70'
           : isSelectable

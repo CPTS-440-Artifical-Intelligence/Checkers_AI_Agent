@@ -1,6 +1,12 @@
-const AI_THINKING_MIN_DURATION_MS = 3000
+import sharedAiConfig from '@shared/checkers_ai_config.json'
+
+// const AI_THINKING_MIN_DURATION_MS = 3000
+const AI_THINKING_MIN_DURATION_MS = 0
 
 export const AI_PLAYER_CONFIG = Object.freeze({
+  engine: Object.freeze({
+    ...sharedAiConfig.engine
+  }),
   request: Object.freeze({
     // Minimum time to keep the AI in its visible "thinking" state, even when
     // the backend responds immediately.

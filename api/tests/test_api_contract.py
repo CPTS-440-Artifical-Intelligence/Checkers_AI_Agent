@@ -11,6 +11,7 @@ if str(SRC) not in sys.path:
     sys.path.insert(0, str(SRC))
 
 from api.dependencies import get_game_service  # noqa: E402
+from api.domain.models import AgentConfig  # noqa: E402
 from api.engine.module_adapter import build_engine_port  # noqa: E402
 from api.main import create_app  # noqa: E402
 from api.repositories.game_repository import InMemoryGameRepository  # noqa: E402
@@ -111,7 +112,7 @@ class APIContractTests(unittest.TestCase):
         self.assertIn("ai", data)
         self.assertIn("chosen_move", data["ai"])
         self.assertIn("metrics", data["ai"])
-        for key in ("depth_reached", "nodes_expanded", "prunes", "time_ms"):
+        for key in ("depth_reached", "nodes_expanded", "prunes", "time_ms", "score"):
             self.assertIn(key, data["ai"]["metrics"])
 
     def test_ai_move_works_with_default_payload(self) -> None:
@@ -121,6 +122,7 @@ class APIContractTests(unittest.TestCase):
         self.assertEqual(status, 200)
         self.assertIn("state", data)
         self.assertIn("ai", data)
+        self.assertEqual(data["ai"]["metrics"]["depth_reached"], AgentConfig().max_depth)
 
     def test_reset_game_restores_initial_state(self) -> None:
         created = self._create_game()

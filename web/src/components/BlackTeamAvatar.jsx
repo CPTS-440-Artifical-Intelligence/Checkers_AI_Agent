@@ -50,12 +50,14 @@ export default function BlackTeamAvatar({
   isActiveTurn = false,
   isThinking = false,
   avatarState,
+  avatarMotionRef = null,
   avatarSize = 168,
   avatarFps = 8,
   avatarOffsetY = 30,
-  avatarTrimTop = 60
+  avatarTrimTop = 60,
+  hideAvatar = false
 }) {
-  const defaultState = avatarState ?? (isThinking ? 'thinking' : isActiveTurn ? 'active' : 'idle')
+  const defaultState = avatarState ?? (isThinking ? 'thinking' : 'idle')
   const resolvedState = useTemporaryAvatarState(defaultState)
 
   return (
@@ -68,8 +70,10 @@ export default function BlackTeamAvatar({
       isActiveTurn={isActiveTurn}
       toneClasses='border-slate-800/55 text-slate-900/80'
       activeClasses='border-slate-900 text-slate-950 ring-amber-700/55'
+      avatarMotionRef={avatarMotionRef}
       avatarOffsetY={avatarOffsetY}
       avatarTrimTop={avatarTrimTop}
+      hideAvatar={hideAvatar}
       avatar={(
         <SpriteAvatar
           type='ai'

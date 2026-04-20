@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { createGame, getGame, applyAiMove, applyMove, getLegalMoves } from '../api/gamesClient'
+import { createGame, resetGame, getGame, applyAiMove, applyMove, getLegalMoves } from '../api/gamesClient'
 import { AI_PLAYER_CONFIG, getAiMinimumStateDuration } from '../config/aiPlayerConfig'
 import { createInitialRenderedPieces, reconcileRenderedPieces } from '../models/animatedPieces'
 import { toUiGameState } from '../models/apiGameState'
@@ -552,6 +552,56 @@ export default function useCheckersGame({ bootstrapSession = null } = {}) {
       })
   }
 
+  const restartGameSession = async () => {
+    const currentGameId = gameStateRef.current?.gameId ?? authoritativeGameStateRef.current?.gameId ?? null
+    const requestId = requestIdRef.current + 1
+    requestIdRef.current = requestId
+    activeRequestIdRef.current = requestId
+    playerResolvedStateRef.current = null
+    playerOptimisticPiecesRef.current = []
+    queuedAiMoveRef.current = null
+    aiThinkingReadyAtRef.current = 0
+
+    clearAnimationTimer()
+    clearAiThinkingTimer()
+    setSelectedPathSquares([])
+    setHoveredSquare(null)
+    setErrorMessage(null)
+    setAiThinkingState(false)
+    setAnimationPhaseState('idle')
+    setMovePhase('idle')
+    setRequestPhaseState('resetting_game')
+    setLegalMoveIndex(EMPTY_LEGAL_MOVE_INDEX)
+
+    try {
+      const nextStatePayload = currentGameId
+        ? await resetGame(currentGameId)
+        : await createGame()
+      if (!isCurrentRequest(requestId)) return
+
+      const nextUiState = toUiGameState(nextStatePayload)
+      if (!nextUiState) throw new Error('Game state payload was empty.')
+
+      setAuthoritativeState(nextUiState)
+      setVisibleGameState(nextUiState)
+      setRenderedPiecesState(createInitialRenderedPieces(nextUiState.pieces))
+
+      if (nextUiState.status === 'in_progress' && nextUiState.turn === 'red') {
+        setRequestPhaseState('syncing_legal_moves')
+        await syncLegalMoves(nextUiState.gameId, nextUiState, requestId)
+        if (!isCurrentRequest(requestId)) return
+      }
+
+      setRequestPhaseState('idle')
+      unlockBoardIfReady(requestId)
+    } catch (error) {
+      if (!isCurrentRequest(requestId)) return
+
+      setRequestPhaseState('idle')
+      setErrorMessage(toMessage(error, 'Failed to restart game.'))
+    }
+  }
+
   useEffect(() => {
     mountedRef.current = true
 
@@ -803,9 +853,12 @@ export default function useCheckersGame({ bootstrapSession = null } = {}) {
     selectedPathSquares,
     selectedSquare,
     statusMessage,
+    winner,
     turn: activeTurn,
     hasStatusError: Boolean(errorMessage),
+    isRestartingGame: requestPhase === 'resetting_game',
     onHoverSquare: setHoveredSquare,
+    onRestartGame: restartGameSession,
     onSelectSquare: handleSelectSquare
   }
 }

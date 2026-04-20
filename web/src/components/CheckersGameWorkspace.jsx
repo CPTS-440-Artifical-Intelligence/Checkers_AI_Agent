@@ -3,6 +3,7 @@ import BlackTeamAvatar from './BlackTeamAvatar'
 import PlayerTeamAvatar from './PlayerTeamAvatar'
 import BoardInteractionStats from './BoardInteractionStats'
 import BoardStatusMessage from './BoardStatusMessage'
+import GameOverRestartOverlay from './GameOverRestartOverlay'
 import useCheckersGame from '../hooks/useCheckersGame'
 
 export default function CheckersGameWorkspace({
@@ -22,6 +23,7 @@ export default function CheckersGameWorkspace({
     isAnimatingMove,
     isBoardInteractive,
     isGameFinished,
+    isRestartingGame,
     legalDestinationSquares,
     movePhase,
     pieces,
@@ -31,8 +33,10 @@ export default function CheckersGameWorkspace({
     selectedPieceId,
     selectedPathSquares,
     statusMessage,
+    winner,
     hasStatusError,
     onHoverSquare,
+    onRestartGame,
     onSelectSquare
   } = useCheckersGame({ bootstrapSession })
 
@@ -42,7 +46,7 @@ export default function CheckersGameWorkspace({
   const boardIsInteractive = isBoardInteractive && !isGameFinished
 
   return (
-    <section className='w-full px-2'>
+    <section className='relative w-full px-2'>
       <div
         className='mx-auto flex w-full items-start justify-center gap-3 lg:[--workspace-gap:0.75rem] xl:gap-5 xl:[--workspace-gap:1.25rem]'
         style={{
@@ -120,6 +124,14 @@ export default function CheckersGameWorkspace({
           />
         </div>
       </div>
+
+      {isGameFinished ? (
+        <GameOverRestartOverlay
+          winner={winner}
+          isRestarting={isRestartingGame}
+          onRestart={onRestartGame}
+        />
+      ) : null}
     </section>
   )
 }

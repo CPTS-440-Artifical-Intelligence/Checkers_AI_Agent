@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 
-const RESTART_OVERLAY_DELAY_MS = 5000
+const RESTART_OVERLAY_DELAY_MS = 4000
 
 function getOverlayCopy(winner) {
   if (winner === 'red') {

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Request
 
 from api.contracts.schemas import (
     AIMoveEnvelopeResponse,
@@ -18,6 +18,7 @@ from api.domain.models import AgentConfig, Path
 from api.services.game_service import GameService
 
 router = APIRouter()
+_TRACE_HEADER = "x-checkers-trace-id"
 
 
 def _path_to_response(path: Path) -> list[list[int]]:
@@ -99,20 +100,24 @@ def get_legal_moves(game_id: str, service: GameService = Depends(get_game_servic
 def apply_move(
     game_id: str,
     payload: MoveRequest,
+    request: Request,
     service: GameService = Depends(get_game_service),
 ) -> GameStateResponse:
-    state = service.apply_move(game_id, payload.path)
+    trace_id = request.headers.get(_TRACE_HEADER)
+    state = service.apply_move(game_id, payload.path, trace_id=trace_id)
     return _state_to_response(state.as_dict())
 
 
 @router.post("/games/{game_id}/ai-move", response_model=AIMoveEnvelopeResponse)
 def apply_ai_move(
     game_id: str,
+    request: Request,
     payload: AIMoveRequest | None = None,
     service: GameService = Depends(get_game_service),
 ) -> AIMoveEnvelopeResponse:
+    trace_id = request.headers.get(_TRACE_HEADER)
     config = _agent_config_from_payload(payload)
-    state, chosen_path, metrics = service.apply_ai_move(game_id, config)
+    state, chosen_path, metrics = service.apply_ai_move(game_id, config, trace_id=trace_id)
     return _ai_move_to_response(
         state=state.as_dict(),
         chosen_path=chosen_path,

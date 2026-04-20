@@ -4,6 +4,8 @@ from typing import Literal
 
 from pydantic import BaseModel, Field, field_validator
 
+from api.shared_ai_config import SHARED_AI_ENGINE_CONFIG
+
 _BOARD_SIZE = 6
 _VALID_PIECES = {".", "r", "R", "b", "B"}
 
@@ -45,10 +47,10 @@ class MoveRequest(BaseModel):
 
 
 class AgentConfigRequest(BaseModel):
-    type: str = "alphabeta"
-    max_depth: int = Field(default=6, ge=1, le=32)
-    time_limit_ms: int = Field(default=800, ge=10, le=60_000)
-    seed: int | None = None
+    type: str = SHARED_AI_ENGINE_CONFIG.type
+    max_depth: int = Field(default=SHARED_AI_ENGINE_CONFIG.max_depth, ge=1, le=32)
+    time_limit_ms: int = Field(default=SHARED_AI_ENGINE_CONFIG.time_limit_ms, ge=10, le=60_000)
+    seed: int | None = SHARED_AI_ENGINE_CONFIG.seed
 
 
 class AIMoveRequest(BaseModel):

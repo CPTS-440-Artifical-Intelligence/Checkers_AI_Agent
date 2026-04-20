@@ -40,7 +40,7 @@ if errorlevel 1 (
 )
 
 echo [launch] Starting API server window...
-start "Checkers API" /D "%API_DIR%" cmd /k "call start-local-api.bat %API_PORT%"
+start "Checkers API" /D "%API_DIR%" cmd /k "set CHECKERS_DEBUG=1 && call start-local-api.bat %API_PORT%"
 
 echo [wait] Waiting for API health: %HEALTH_URL%
 set /a "MAX_WAIT_SECONDS=90"

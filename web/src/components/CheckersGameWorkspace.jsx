@@ -41,7 +41,7 @@ export default function CheckersGameWorkspace({
   } = useCheckersGame({ bootstrapSession })
 
   const workspaceStyle = {
-    '--workspace-panel-aspect': 18 / 23
+    '--workspace-panel-aspect': 18 / 24.5
   }
   const boardIsInteractive = isBoardInteractive && !isGameFinished
 
@@ -52,7 +52,7 @@ export default function CheckersGameWorkspace({
         style={{
           ...workspaceStyle,
           '--workspace-board-size': 'min(44rem, calc(100vh - 16rem), calc((100vw - 3rem - (var(--workspace-gap) * 2)) / (1 + (2 * var(--workspace-panel-aspect)))))',
-          '--workspace-panel-height': 'calc(var(--workspace-board-size) * 0.92)'
+          '--workspace-panel-height': 'calc(var(--workspace-board-size) * 1)'
         }}
       >
         <div className='hidden shrink-0 lg:flex lg:h-[var(--workspace-panel-height)] lg:w-[calc(var(--workspace-board-size)*var(--workspace-panel-aspect))]'>

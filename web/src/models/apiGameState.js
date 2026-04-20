@@ -43,6 +43,34 @@ export function boardToPieces(board) {
   return pieces
 }
 
+export function toUiAiMetrics(apiMetrics) {
+  if (!apiMetrics || typeof apiMetrics !== 'object') return null
+
+  const depthReached = Number(apiMetrics.depth_reached)
+  const nodesExpanded = Number(apiMetrics.nodes_expanded)
+  const prunes = Number(apiMetrics.prunes)
+  const timeMs = Number(apiMetrics.time_ms)
+  const score = Number(apiMetrics.score)
+
+  if (
+    !Number.isFinite(depthReached)
+    || !Number.isFinite(nodesExpanded)
+    || !Number.isFinite(prunes)
+    || !Number.isFinite(timeMs)
+    || !Number.isFinite(score)
+  ) {
+    return null
+  }
+
+  return {
+    depthReached,
+    nodesExpanded,
+    prunes,
+    timeMs,
+    score
+  }
+}
+
 export function toUiGameState(apiState) {
   if (!apiState) return null
 

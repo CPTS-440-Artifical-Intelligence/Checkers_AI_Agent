@@ -58,6 +58,9 @@ export default function TeamAvatarSlot({
   const hasAvatarTransform = avatarTranslateY !== 0
   const hasAvatarTrim = safeAvatarTrimTop > 0
   const statusBadgeLabel = formatStatusBadgeLabel(statusBadge)
+  const normalizedStats = Array.isArray(stats) ? stats : []
+  const primaryStats = normalizedStats.filter((stat) => stat?.emphasis !== 'secondary')
+  const secondaryStats = normalizedStats.filter((stat) => stat?.emphasis === 'secondary')
   const avatarPresentationVars = {
     '--avatar-wrapper-width-base': `${AVATAR_OVERFLOW.wrapperWidthBase * 100}%`,
     '--avatar-wrapper-width-sm': `${AVATAR_OVERFLOW.wrapperWidthSm * 100}%`,
@@ -84,7 +87,7 @@ export default function TeamAvatarSlot({
     <aside className={`w-full ${className}`.trim()} aria-label={ariaLabel}>
       <div className='mx-auto h-full w-full max-w-[18rem] lg:max-w-none lg:[container-type:size]'>
         <div
-          className={`relative flex h-full flex-col overflow-visible rounded-[2rem] border px-5 py-6 text-center shadow-[0_22px_46px_-34px_rgba(84,44,14,0.72),0_12px_24px_-20px_rgba(120,68,20,0.5)] sm:px-6 lg:aspect-[18/23] lg:px-[7cqi] lg:py-[5.25cqi] ${
+          className={`relative flex h-full flex-col overflow-visible rounded-[2rem] border px-5 py-6 text-center shadow-[0_22px_46px_-34px_rgba(84,44,14,0.72),0_12px_24px_-20px_rgba(120,68,20,0.5)] sm:px-6 lg:aspect-[18/24.5] lg:px-[7cqi] lg:py-[5.25cqi] ${
             isActiveTurn ? activeClasses : toneClasses
           }`}
           style={{
@@ -140,19 +143,43 @@ export default function TeamAvatarSlot({
           </div>
 
           <div className='mt-auto mb-2 mx-3 pt-1.5 lg:pt-[1.6cqi]'>
-            {stats.map((stat) => (
-              <div
-                key={stat.label}
-                className='flex items-center justify-between gap-3 rounded-[1.25rem] border border-current/14 bg-amber-50/12 px-3 py-2.5 shadow-[inset_0_1px_0_rgba(255,240,209,0.28)] lg:gap-[2.75cqi] lg:rounded-[2.2cqi] lg:px-[3.8cqi] lg:py-[2.8cqi]'
-              >
-                <span className='font-mono text-[0.64rem] uppercase tracking-[0.18em] opacity-75 lg:text-[clamp(0.72rem,2.45cqi,0.94rem)]'>
-                  {stat.label}
-                </span>
-                <span className='grid h-8 min-w-8 place-items-center rounded-full border border-current/28 bg-amber-50/22 px-2 font-mono text-sm font-bold leading-none shadow-[inset_0_1px_0_rgba(255,238,205,0.4)] lg:h-[clamp(2.15rem,8.25cqi,2.8rem)] lg:min-w-[clamp(2.15rem,8.25cqi,2.8rem)] lg:px-[clamp(0.55rem,2.1cqi,0.85rem)] lg:text-[clamp(0.95rem,3.45cqi,1.3rem)]'>
-                  {stat.value}
-                </span>
+            {primaryStats.length > 0 ? (
+              <div className={`grid gap-2 lg:gap-[1.7cqi] ${primaryStats.length > 1 ? 'grid-cols-2' : 'grid-cols-1'}`}>
+                {primaryStats.map((stat) => (
+                  <div
+                    key={stat.label}
+                    className='flex min-h-[3rem] items-center justify-between gap-2 rounded-[1.1rem] border border-current/14 bg-amber-50/12 px-3 py-2 text-left shadow-[inset_0_1px_0_rgba(255,240,209,0.28)] lg:min-h-[clamp(2.55rem,7.5cqi,3.3rem)] lg:rounded-[1.9cqi] lg:px-[2.7cqi] lg:py-[1.45cqi]'
+                    title={stat.title}
+                  >
+                    <span className='font-mono text-[0.58rem] uppercase tracking-[0.18em] opacity-70 lg:text-[clamp(0.56rem,1.45cqi,0.74rem)]'>
+                      {stat.label}
+                    </span>
+                    <span className='shrink-0 font-mono text-[0.98rem] font-bold leading-none tracking-[0.02em] lg:text-[clamp(0.92rem,2.55cqi,1.16rem)]'>
+                      {stat.value}
+                    </span>
+                  </div>
+                ))}
               </div>
-            ))}
+            ) : null}
+
+            {secondaryStats.length > 0 ? (
+              <div className='mt-2 grid grid-cols-2 gap-1.5 lg:mt-[1.4cqi] lg:gap-[1.15cqi]'>
+                {secondaryStats.map((stat) => (
+                  <div
+                    key={stat.label}
+                    className='flex min-h-[2.35rem] items-center justify-between gap-1.5 rounded-[0.95rem] border border-current/12 bg-amber-50/8 px-2.5 py-1.5 text-left shadow-[inset_0_1px_0_rgba(255,240,209,0.18)] lg:min-h-[clamp(2rem,5.9cqi,2.45rem)] lg:rounded-[1.45cqi] lg:px-[2cqi] lg:py-[1.1cqi]'
+                    title={stat.title}
+                  >
+                    <span className='font-mono text-[0.5rem] uppercase tracking-[0.16em] opacity-65 lg:text-[clamp(0.46rem,1.15cqi,0.6rem)]'>
+                      {stat.label}
+                    </span>
+                    <span className='shrink-0 font-mono text-[0.78rem] font-bold leading-none tracking-[0.01em] lg:text-[clamp(0.72rem,1.85cqi,0.88rem)]'>
+                      {stat.value}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            ) : null}
           </div>
         </div>
       </div>

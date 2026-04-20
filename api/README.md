@@ -181,7 +181,8 @@ Response:
       "depth_reached": 15,
       "nodes_expanded": 18432,
       "prunes": 5100,
-      "time_ms": 742
+      "time_ms": 742,
+      "score": 1.75
     }
   }
 }

@@ -112,7 +112,7 @@ class APIContractTests(unittest.TestCase):
         self.assertIn("ai", data)
         self.assertIn("chosen_move", data["ai"])
         self.assertIn("metrics", data["ai"])
-        for key in ("depth_reached", "nodes_expanded", "prunes", "time_ms"):
+        for key in ("depth_reached", "nodes_expanded", "prunes", "time_ms", "score"):
             self.assertIn(key, data["ai"]["metrics"])
 
     def test_ai_move_works_with_default_payload(self) -> None:

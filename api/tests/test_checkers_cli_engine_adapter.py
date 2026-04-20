@@ -91,6 +91,7 @@ class CheckersCliEngineAdapterTests(unittest.TestCase):
         self.assertGreaterEqual(metrics.depth_reached, 0)
         self.assertGreater(metrics.nodes_expanded, 0)
         self.assertGreater(metrics.time_ms, 0)
+        self.assertIsInstance(metrics.score, float)
 
     def test_round_trip_preserves_board_and_legal_moves_through_replay(self) -> None:
         state = self.adapter.new_game_state("game1234")

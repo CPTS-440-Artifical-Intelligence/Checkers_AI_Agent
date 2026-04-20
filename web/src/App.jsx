@@ -1,15 +1,33 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
+import { createGame, getLegalMoves } from './api/gamesClient'
 import AppHeader from './components/AppHeader'
 import AwakeningAI from './components/AwakeningAI'
 import CheckersGameWorkspace from './components/CheckersGameWorkspace'
 import GameBackground from './components/GameBackground'
 import SpriteAvatar from './components/SpriteAvatar'
+import { toUiGameState } from './models/apiGameState'
 
 const CONNECT_TRANSITION_MS = 1800
 const GAME_FADE_IN_DELAY_MS = 300
 const GAME_FADE_IN_MS = 500
+const BACKEND_BOOT_INITIAL_RETRY_MS = 2500
+const BACKEND_BOOT_RETRY_MULTIPLIER = 1.8
+const BACKEND_BOOT_RETRY_CAP_MS = 10000
+const BACKEND_BOOT_RETRY_JITTER = 0.2
 const TRANSITION_EASING = 'cubic-bezier(0.22, 1, 0.36, 1)'
+
+function getRetryDelayMs(attemptCount) {
+  const safeAttemptCount = Number.isFinite(attemptCount) && attemptCount > 0
+    ? attemptCount
+    : 0
+  const exponentialDelay = BACKEND_BOOT_INITIAL_RETRY_MS
+    * (BACKEND_BOOT_RETRY_MULTIPLIER ** safeAttemptCount)
+  const cappedDelay = Math.min(exponentialDelay, BACKEND_BOOT_RETRY_CAP_MS)
+  const jitterOffset = cappedDelay * BACKEND_BOOT_RETRY_JITTER * (Math.random() * 2 - 1)
+
+  return Math.max(Math.round(cappedDelay + jitterOffset), BACKEND_BOOT_INITIAL_RETRY_MS)
+}
 
 function toRectSnapshot(element) {
   if (!(element instanceof HTMLElement)) {
@@ -37,6 +55,7 @@ function pickVisibleRect(...elements) {
 
 function App() {
   const [isAwakeningMode, setIsAwakeningMode] = useState(true)
+  const [bootstrapSession, setBootstrapSession] = useState(null)
   const [sceneTransition, setSceneTransition] = useState(null)
   const awakeningAvatarRef = useRef(null)
   const desktopGameAiAvatarRef = useRef(null)
@@ -44,7 +63,7 @@ function App() {
 
   const isTransitioningToGame = sceneTransition !== null
 
-  function beginAwakeningToGameTransition() {
+  const beginAwakeningToGameTransition = useCallback(() => {
     const sourceRect = toRectSnapshot(awakeningAvatarRef.current)
 
     if (!sourceRect) {
@@ -58,39 +77,73 @@ function App() {
       targetRect: null
     })
     setIsAwakeningMode(false)
-  }
+  }, [])
 
   useEffect(() => {
-    function handleKeyDown(event) {
-      const target = event.target
-      const isTypingTarget = target instanceof HTMLElement && (
-        target.tagName === 'INPUT' ||
-        target.tagName === 'TEXTAREA' ||
-        target.isContentEditable
-      )
+    if (bootstrapSession || sceneTransition) {
+      return undefined
+    }
 
-      if (isTypingTarget || event.key.toLowerCase() !== 'l') {
-        return
-      }
+    let disposed = false
+    let retryTimerId = 0
+    let retryAttemptCount = 0
+    let activeController = null
 
-      if (sceneTransition) {
-        return
-      }
+    async function prepareInitialGameSession() {
+      if (disposed) return
 
-      if (isAwakeningMode) {
+      const controller = new AbortController()
+      activeController = controller
+
+      try {
+        const createdState = await createGame({ signal: controller.signal })
+        if (disposed) return
+
+        const uiState = toUiGameState(createdState)
+        if (!uiState) {
+          throw new Error('Game state payload was empty.')
+        }
+
+        let legalMovesPayload = null
+        if (uiState.status === 'in_progress' && uiState.turn === 'red') {
+          legalMovesPayload = await getLegalMoves(uiState.gameId, { signal: controller.signal })
+          if (disposed) return
+        }
+
+        setBootstrapSession({
+          gameState: uiState,
+          legalMovesPayload
+        })
+        retryAttemptCount = 0
         beginAwakeningToGameTransition()
         return
+      } catch (error) {
+        if (
+          disposed ||
+          (error instanceof Error && error.name === 'AbortError')
+        ) {
+          return
+        }
+      } finally {
+        if (activeController === controller) {
+          activeController = null
+        }
       }
 
-      setIsAwakeningMode(true)
+      retryTimerId = window.setTimeout(() => {
+        retryAttemptCount += 1
+        void prepareInitialGameSession()
+      }, getRetryDelayMs(retryAttemptCount))
     }
 
-    window.addEventListener('keydown', handleKeyDown)
+    void prepareInitialGameSession()
 
     return () => {
-      window.removeEventListener('keydown', handleKeyDown)
+      disposed = true
+      window.clearTimeout(retryTimerId)
+      activeController?.abort()
     }
-  }, [isAwakeningMode, sceneTransition])
+  }, [beginAwakeningToGameTransition, bootstrapSession, sceneTransition])
 
   useEffect(() => {
     if (sceneTransition?.phase !== 'preparing') {
@@ -186,6 +239,7 @@ function App() {
               subtitle='Can you beat the AI Agent? Try it out and see how well you can do!'
             />
             <CheckersGameWorkspace
+              bootstrapSession={bootstrapSession}
               desktopAiAvatarMotionRef={desktopGameAiAvatarRef}
               mobileAiAvatarMotionRef={mobileGameAiAvatarRef}
               hideAiAvatar={isTransitioningToGame}

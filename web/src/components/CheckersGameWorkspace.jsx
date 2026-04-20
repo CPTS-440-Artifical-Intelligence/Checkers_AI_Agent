@@ -6,6 +6,7 @@ import BoardStatusMessage from './BoardStatusMessage'
 import useCheckersGame from '../hooks/useCheckersGame'
 
 export default function CheckersGameWorkspace({
+  bootstrapSession = null,
   desktopAiAvatarMotionRef = null,
   mobileAiAvatarMotionRef = null,
   hideAiAvatar = false,
@@ -33,7 +34,7 @@ export default function CheckersGameWorkspace({
     hasStatusError,
     onHoverSquare,
     onSelectSquare
-  } = useCheckersGame()
+  } = useCheckersGame({ bootstrapSession })
 
   const workspaceStyle = {
     '--workspace-panel-aspect': 18 / 23

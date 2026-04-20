@@ -136,7 +136,7 @@ function toExposedRenderedPiece(piece) {
   }
 }
 
-export default function useCheckersGame() {
+export default function useCheckersGame({ bootstrapSession = null } = {}) {
   const [hoveredSquare, setHoveredSquare] = useState(null)
   const [selectedPathSquares, setSelectedPathSquares] = useState([])
   const [gameState, setGameState] = useState(null)
@@ -571,6 +571,14 @@ export default function useCheckersGame() {
       setErrorMessage(null)
 
       try {
+        if (bootstrapSession?.gameState) {
+          setAuthoritativeState(bootstrapSession.gameState)
+          setVisibleGameState(bootstrapSession.gameState)
+          setRenderedPiecesState(createInitialRenderedPieces(bootstrapSession.gameState.pieces))
+          setLegalMoveIndex(createLegalMoveIndex(bootstrapSession.legalMovesPayload))
+          return
+        }
+
         const created = await createGame({ signal: controller.signal })
         if (disposed) return
 
@@ -606,7 +614,7 @@ export default function useCheckersGame() {
       disposed = true
       controller.abort()
     }
-  }, [])
+  }, [bootstrapSession])
 
   const pieces = useMemo(
     () => renderedPieces.map(toExposedRenderedPiece),
